@@ -14,6 +14,63 @@ Bei Verwendung weiterer Frameworks müssen wir gucken das Nutzung kommerziell m�
 
 Stackbeschreibung (viele der Teile sind derzeit nicht in Benutzung aber schonmal anvisiert)
 
+flowchart TD
+subgraph Anwendungen
+A["OpenWebUI (Self-hosted AI Interface)"]
+S["SearXNG (Metasucher)"]
+end
+
+subgraph KI_Modelle
+hub[IONOS AI Hub] -->|Textgenerierung| L["Llama 3.3 70B"]
+hub -->|Bildgenerierung| M["Stable Diffusion XL"]
+hub -->|Embeddings| emb["Embedding-Modelle"]
+end
+
+subgraph Vektordatenbanken
+P1["PostgreSQL + pgvector"]
+P2["IONOS Managed PostgreSQL"]
+Q["Qdrant"]
+C["Chroma DB"]
+end
+
+subgraph Datenbanken
+D1["PostgreSQL (Logs)"]
+D2["IONOS Managed PostgreSQL"]
+end
+
+subgraph PowerUser_Tools
+N["n8n (Workflows)"]
+end
+
+subgraph NLP_Tools
+H["Haystack (RAG)"]
+end
+
+%% Zentrale Verbindungen
+hub -->|API| A
+hub -->|API| H
+
+%% Anwendungslogik
+A -->|Websuche| S
+A -->|Nutzerinteraktion| N
+A -->|Embeddings speichern| Vektordatenbanken
+A -->|Logs/Metadaten| Datenbanken
+
+%% Workflow-Integration
+N -->|Trigger| H
+N -->|Webhook| O["ZUG Webseite"]
+H -->|Dokumentenverarbeitung| Vektordatenbanken
+H -->|RAG-Abfragen| hub
+
+%% Datenflüsse
+emb -->|Vektorisierung| Vektordatenbanken
+Vektordatenbanken -->|Semantische Suche| A
+Vektordatenbanken -->|Kontext| H
+
+%% Styling für Managed Services
+classDef managed fill:#e3f2fd,stroke:#2196f3
+class hub,M,P2,C,D2 managed
+
 
 
 # Inhalt
