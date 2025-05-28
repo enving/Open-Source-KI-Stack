@@ -42,7 +42,10 @@ services:
       - QDRANT_TIMEOUT=30
       - QDRANT_HEALTH_CHECK_URL=/collections
       # Docling Konfiguration
-      - DOCLING_URL=http://docling-serve:5001
+      - DOCLING_SERVER_URL=http://docling-serve:5001
+      - DOCLING_OCR_ENGINE=auto
+      - DOCLING_OCR_LANG=deu
+      - DOCLING_DO_PICTURE_DESCRIPTION=true
     depends_on:
       - qdrant
       - docling-serve
@@ -114,5 +117,9 @@ services:
       - DOCLING_SERVE_HOST=0.0.0.0
       - DOCLING_SERVE_PORT=5001
       - DOCLING_SERVE_ALLOW_ORIGINS=["*"]
+      # Qdrant Konfiguration für Docling
+      - QDRANT_URL=http://qdrant:6333
+      - QDRANT_API_KEY=${QDRANT_API_KEY:-sfsfsfsfsfsfssf}
+      - QDRANT_COLLECTION_NAME=docling
     depends_on:
       - qdrant
