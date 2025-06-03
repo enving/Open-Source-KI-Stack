@@ -10,11 +10,17 @@ ionos token als credential in n8n anlegen
 
 
 
+
 # Important Documentation
 
 ### N8N
 - [N8N](https://n8n.io/)
 
+### OpenWebui
+https://docs.openwebui.com/
+
+### Ionos 
+siehe unter Ordner Docs/ionos
 
 
 # Nebeninformationen zum Einstieg:
