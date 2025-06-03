@@ -1,5 +1,27 @@
+# Erste Schritte:
 
-Nützliche Informationen zum Einstieg:
+docker compose starten
+
+imports manuell in openwebui und n8n hochladen
+
+ionos token auf 3 versch. Seiten in Openwebui anlegen
+
+ionos token als credential in n8n anlegen
+
+
+
+# Important Documentation
+
+### N8N
+- [N8N](https://n8n.io/)
+
+
+
+# Nebeninformationen zum Einstieg:
+
+- Dieses Repo hat ist befreut von Personenbezogenen als auch Firmeninternen Informationen wie Passwörter, ssh keys oder (https) Zertifikate
+
+- Dieses Repo dient der Open Source Weiterentwicklung und ist öffentlich zugänglich
 
 - n8n und Ionos (hybrid derzeit nicht in Planung muss geprüft werden ob zuversichtlich und möglich) https://www.youtube.com/watch?v=K_zmCUkHK4k
 - 
