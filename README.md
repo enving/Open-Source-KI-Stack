@@ -1,3 +1,13 @@
+
+Nützliche Informationen zum Einstieg:
+
+- n8n und Ionos (hybrid derzeit nicht in Planung muss geprüft werden ob zuversichtlich und möglich) https://www.youtube.com/watch?v=K_zmCUkHK4k
+- 
+
+
+
+
+
 Settings for use of IONOS AI Hub in Openwebui / n8n:
 
 
