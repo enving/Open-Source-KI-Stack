@@ -5,8 +5,7 @@
 
 - Dieses Repo dient der Open Source Weiterentwicklung und ist öffentlich zugänglich
 
-- n8n und Ionos (hybrid derzeit nicht in Planung muss geprüft werden ob zuversichtlich und möglich) https://www.youtube.com/watch?v=K_zmCUkHK4k
-- 
+
 
 Manuell zu importieren (siehe Ordner) muss nach docker compose installation gemacht werden, dann haben alle dasselbe setup.
 Wie importiert wird: in Openwebui/Settings/Administration/Datenbank/Konfigurationsdatei importieren
