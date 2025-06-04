@@ -44,7 +44,7 @@ Ionos dcd cloud login
 
 #Installation
 git clone -b stable https://github.com/enving/ki_stack
-cd local-ai-packaged
+cd ki_stack
 
 
 Before running the services, you need to set up your environment variables
