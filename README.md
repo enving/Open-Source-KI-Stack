@@ -8,17 +8,9 @@
 - n8n und Ionos (hybrid derzeit nicht in Planung muss geprüft werden ob zuversichtlich und möglich) https://www.youtube.com/watch?v=K_zmCUkHK4k
 - 
 
-
-
-
-
-Settings for use of IONOS AI Hub in Openwebui / n8n:
-
-
-
-
-
-
+Manuell zu importieren (siehe Ordner) muss nach docker compose installation gemacht werden, dann haben alle dasselbe setup.
+Wie importiert wird: in Openwebui/Settings/Administration/Datenbank/Konfigurationsdatei importieren
+Hier die config.json aus dem Ordner "manuell_importieren" reinladen um zu importieren. Dann ist auch die function pipe zu n8n bereits da. die owui datenbank webui.db muss nicht unbedingt reingeladen werden derzeit. n8n spielt für den zugchat rollout vorerst auch eher nur eine Rolle sofern die RAG Architektur darauf basiert.
 
 function KI workflow: ist die derzeitige function pipe zwischen openwebui und n8n. kann so wie sie ist in der openwebui oberfläche uner Admin panel--> Funktionen importiert werden. Die Variablen / vaults müssen dann noch ggf. angepasst werden auf deine jeweilige n8n instanz
 
