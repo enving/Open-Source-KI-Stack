@@ -1,12 +1,5 @@
-Wichtige Doku:
-### OpenWebui
-https://docs.openwebui.com/
 
-### Ionos 
-siehe unter Ordner Docs/ionos
-
-
-# Nebeninformationen zum Einstieg:
+# Informationen und Installation
 
 - Dieses Repo hat ist befreut von Personenbezogenen als auch Firmeninternen Informationen wie Passwörter, ssh keys oder (https) Zertifikate
 
