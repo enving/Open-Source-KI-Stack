@@ -1,8 +1,4 @@
-# Important Documentation
-
-### N8N
-- [N8N](https://n8n.io/)
-
+Wichtige Doku:
 ### OpenWebui
 https://docs.openwebui.com/
 
