@@ -1,9 +1,17 @@
 
-# Informationen
+# Vorabinformationen
 
 - Dieses Repo dient der Open Source Weiterentwicklung und wird öffentlich zugänglich
-
 - Dieses Repo ist befreit von personenbezogenen als auch firmeninternen Informationen wie Passwörter, ssh keys oder (https) Zertifikate. Diese müssen vor der öffentlichen veröffentlichung des repos entfernt werden, und sollten dann über .env oder .gitignore auf dem lokalen Rechner oder Server bleiben.
+- Die RAG Grund-Architektur wird derzeit optimiert und soll bis Oktober ausgewählt werden. Derzeit ist angedacht haystack mitaufzunehmen und über hayhook openwebui & n8n verfügbar zu machen. zb so: https://github.com/open-webui/pipelines/blob/main/examples/pipelines/rag/haystack_pipeline.py
+
+## Anforderungen & Ziele bis Oktober 2025:
+Der Dokumenten-Chat 1 ode rmehrere Dokumente soll innerhalb Openwebui möglichst performant und qualitativ hochwertig sein, dazu können Anpassungen in Openwebui gemacht werden oder auf eine andere RAg Archtitektur zurückgegriffen werden. Dazu sind ein paar Issues mit konkreten Beispielen in diesem Repo zu finden.
+Die Installation über Option 1 nutzt soweit alle möglichen Optionen innerhalb owui zusammen mit docling, searxng
+
+Bei der Nutzung von alternativen RAG Architekturen (Installation über Option 2 mit n8n derzeit) gilt die Anforderung, dass die Funktionen innerhalb owui für die Nutzenden nicht eingeschränkt werden zB Websuche.
+
+Beide Optionen nutzen derzeit qdrant als von der community für performante und skalierbare Vektordatenbank Empfehlung.
 
 # Installation
 
