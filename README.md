@@ -16,7 +16,7 @@ cp .env.example .env
 docker compose -f ./docker-compose.testing.yml up -d
 ```
 
-Dann manueller Import von n8n workflow und Konfigurationsdatei (config.file) in OpenWebui.
+Dann manueller Import von n8n workflow und Konfigurationsdatei (config.file) in OpenWebui aus Ordner /install_option1_manuel_imports
 
 
 ## Option 2: Basic stack  - automatic imports 
