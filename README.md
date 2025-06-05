@@ -13,16 +13,16 @@ To prepare the development environment, just follow these steps:
 git clone -b main https://github.com/enving/ki_stack
 cd ki_stack
 cp .env.example .env
-docker compose -f .\docker-compose.dev.yml up -d
+docker compose -f ./docker-compose.dev.yml up -d
 ```
 
-After that, the entire enviroment should be automatically prepared and come up, mainly:
+After that, the entire enviroment should be **automatically prepared**\* and come up, mainly:
 
 - n8n on: http://localhost:5678/
 - openwebui on: http://localhost:3000/
 - qdrant on: http://localhost:6333/
 
-To customize how the databases are populated on first startup, refer to the README in `db_init` and deeper folders.
+\* To customize how the databases are populated on first startup, refer to the README in `db_init` and deeper folders.
 
 function KI workflow: ist die derzeitige function pipe zwischen openwebui und n8n. kann so wie sie ist in der openwebui oberfläche uner Admin panel--> Funktionen importiert werden. Die Variablen / vaults müssen dann noch ggf. angepasst werden auf deine jeweilige n8n instanz
 
@@ -60,17 +60,17 @@ To update all containers to their latest versions (n8n, Open WebUI, etc.), run t
 
 ```bash
 # Stop all services
-docker compose -f .\docker-compose.dev.yml down
+docker compose -f ./docker-compose.dev.yml down
 # Pull latest versions of all containers
 docker compose pull
 # Start all services in detached mode
-docker compose -f .\docker-compose.dev.yml up -d
+docker compose -f ./docker-compose.dev.yml up -d
 ```
 
 ## Further notes
 
 There is also a so called "Testing" environment where reverse proxy, docling and other services run. To start that instead of the default development environment, use:
 ```
-docker compose -f .\docker-compose.testing.yml up -d
+docker compose -f ./docker-compose.testing.yml up -d
 ```
 Ironically enough, the testing branch was *not* tested. Use it at your own risk.
