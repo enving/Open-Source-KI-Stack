@@ -1,9 +1,9 @@
 
 # Informationen
 
-- Dieses Repo dient der Open Source Weiterentwicklung und ist öffentlich zugänglich
+- Dieses Repo dient der Open Source Weiterentwicklung und wird öffentlich zugänglich
 
-- Dieses Repo ist befreut von Personenbezogenen als auch Firmeninternen Informationen wie Passwörter, ssh keys oder (https) Zertifikate. Diese müssen vor der öffentlichen veröffentlichung des repos entfernt werden, und sollten dann über .env oder .gitignore auf dem lokalen Rechner oder Server bleiben.
+- Dieses Repo ist befreit von personenbezogenen als auch firmeninternen Informationen wie Passwörter, ssh keys oder (https) Zertifikate. Diese müssen vor der öffentlichen veröffentlichung des repos entfernt werden, und sollten dann über .env oder .gitignore auf dem lokalen Rechner oder Server bleiben.
 
 # Installation
 
