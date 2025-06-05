@@ -8,6 +8,7 @@
 # Installation
 
 ## Option 1: Advanced stack and for rollout Oktober 2025 - manuel imports
+This installation uses docling and searxng within openwebui (see docker compose testing). However there is yet no automatic imports like in option 2 and also the RAG used is the advanced setup within openwebui with docling - not with n8n like in option 2.
 ```
 git clone -b main https://github.com/enving/ki_stack
 cd ki_stack
