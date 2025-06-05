@@ -10,7 +10,7 @@ POSTGRES_PASSWORD=${POSTGRES_N8N_PASSWORD:-dev_pwd}
 
 export PGPASSWORD="$POSTGRES_PASSWORD"
 
-WORKFLOW_DIR="/db_init/workflows"
+WORKFLOW_DIR="/db_init/n8n"
 
 echo "🔍 Waiting for PostgreSQL at $POSTGRES_HOST:$POSTGRES_PORT..."
 
@@ -41,7 +41,7 @@ echo "⚡️ Inserting workflows from directory: $WORKFLOW_DIR"
 
 PROJECT_ID="default-project-id"
 
-for WORKFLOW_FILE in "$WORKFLOW_DIR"/*.json; do
+for WORKFLOW_FILE in "$WORKFLOW_DIR"/workflow-*.json; do
   echo "🔎 Processing $WORKFLOW_FILE..."
 
   # Extract JSON fields

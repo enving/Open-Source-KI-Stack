@@ -10,7 +10,7 @@ POSTGRES_PASSWORD=${POSTGRES_N8N_PASSWORD:-dev_pwd}
 
 export PGPASSWORD="$POSTGRES_PASSWORD"
 
-FUNCTION_DIR="/db_init/functions"
+OPENWEBUI_DIR="/db_init/openwebui"
 
 echo "🔍 Waiting for PostgreSQL at $POSTGRES_HOST:$POSTGRES_PORT..."
 
@@ -33,11 +33,11 @@ if [ "$TABLE_EXISTS" = "t" ]; then
   echo "✅ Table exists. Skipping seed."
 else
   echo "⚡️ Seeding database..."
-  psql -h "$POSTGRES_HOST" -p "$POSTGRES_PORT" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f ./db_init/seeds/owui.sql
+  psql -h "$POSTGRES_HOST" -p "$POSTGRES_PORT" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f ./db_init/seeds/openwebui.sql
   echo "✅ Database seeded!"
 fi
 
-for FUNCTION_FILE in "$FUNCTION_DIR"/*.json; do
+for FUNCTION_FILE in "$OPENWEBUI_DIR"/function-*.json; do
   echo "🔎 Processing $FUNCTION_FILE..."
 
   # If the JSON file is an array, iterate over each object
@@ -65,4 +65,22 @@ EOF
   done
 done
 
-echo "🎉 All functions inserted successfully!"
+# Process config-*.json files
+for CONFIG_FILE in "$OPENWEBUI_DIR"/config-*.json; do
+  echo "🔎 Processing config $CONFIG_FILE..."
+
+  # Load the JSON content as a single-line escaped string for SQL
+  CONFIG_DATA=$(jq -c '.' "$CONFIG_FILE" | sed "s/'/''/g")
+  VERSION=$(jq -r ".version" "$CONFIG_FILE")
+
+  psql -h "$POSTGRES_HOST" -p "$POSTGRES_PORT" -U "$POSTGRES_USER" -d "$POSTGRES_DB" <<EOF
+INSERT INTO "public"."config"
+  ("data", "version", "created_at", "updated_at")
+VALUES
+  ('$CONFIG_DATA', '$VERSION', NOW(), NOW())
+EOF
+
+  echo "✅ Config from $CONFIG_FILE inserted!"
+done
+
+echo "🎉 All functions and configs inserted successfully!"
