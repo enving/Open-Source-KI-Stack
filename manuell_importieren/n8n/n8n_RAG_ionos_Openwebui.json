@@ -1,0 +1,603 @@
+{
+  "name": "n8n_RAG_ionos_Openwebui",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Local RAG AI Agent with Chat Interface",
+        "height": 527,
+        "width": 1409
+      },
+      "id": "1e4876ff-3671-42cd-a38f-76687949f2f9",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -960,
+        1080
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Agent Tools for Local RAG",
+        "height": 529,
+        "width": 963,
+        "color": 4
+      },
+      "id": "a5f2b14b-413b-4774-be6b-cf9656a4438f",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -700,
+        1080
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "5dd389ad-2f59-461b-a0bf-8c95e1d05ef7",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1280,
+        540
+      ],
+      "webhookId": "4b3b1838-d6b3-447e-9d79-d0931eddb9f8"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "614c6e70-924b-4d4f-a0dd-ff093957d244",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        160,
+        620
+      ]
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "Du bist der digitale Förderassistent für das Förderprogramm INAWI und berätst die Öffentlichkeit mit möglichst einfacher Sprache. Du berätst zu einem konkreten Förderprogramm in deinem Tool Vektordatenbank befindet sich Wissen auf das zugreifen kannst. Erwähne nicht Vektordatenbank, das versteht niemand. Du weißt einfach alles über ein Förderprogramm zu das ich dir Wissen gebe"
+        }
+      },
+      "id": "0b427358-ec59-44aa-a8d7-92fcec2851e7",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.6,
+      "position": [
+        -340,
+        620
+      ],
+      "notes": "Du kannst Webseiten crawlen, Informationen extrahieren und Zusammenfassungen erstellen. Deine Aufgabe ist es, relevante Informationen zu finden und zu präsentieren, um den Vertriebsprozess zu unterstützen.\n\nBei Rückfragen schau dir immer dein internes Wissen an um Angebote von IONOS vorzuschlagen.\n\nDu hast websearching capabilities, d.h. du kannst damit auf aktuelle Informationen zugreifen.\nMach eine Tabelle mit den wichtigsten informationen für uns als vertriebler. schau dass es ein format hat dass wir auch bei anderen unternehmenssuchen anwenden können um immer die selbe sicht zu haben.\ngebe immer die tabelle in diesem format wieder zu unternehmensrecherchen im selben format wieder. \n\nMach Angaben in Euro etc. also Deutscher Raum.\n\nBeispiel Kaeser:\nKategorie\nInformation\nUnternehmensname\nKaeser Kompressoren SE\nHauptsitz\nCoburg, Deutschland\nGründungsjahr\n1919\nUmsatz\ncirca 1 Milliarde Euro (2021)\nMitarbeiterzahl\ncirca 7.000 weltweit\nProduktionsstandorte\nCoburg, Gera, Lyon\nGeschäftsführer\nThomas Kaeser, Tina-Maria Vlantoussi-Kaeser\nKontaktadresse\nCarl-Kaeser-Str. 26, 96450 Coburg, Deutschland\nTelefon\n+49 9561 6400\nE-Mail\ninfo@kaeser.com\nWebsite\nwww.kaeser.com\nCloud Provider\nsuche wo sie ihre Cloud Ressourcen beziehen\nMessen 2025\nBauma 2025 (München, Deutschland), LIGNA 2025 (Hannover, Deutschland)\nMessestandort\nBauma 2025: Halle FM, Stand 708/9 - 708/11; LIGNA 2025: Halle 15, Stand D13\nProdukte\nKompressoren, Druckluftanlagen, Vakuumtechnik, Gebläse, Filter, Trockner\nDienstleistungen\nBeratung, Planung, Service, Wartung, Reparatur\n\n\nRückfragen an den Nutzer stellen was er noch wissen möchte (Schreibe zahlen 1. 2. 3. an jede Rückfrage sodass der Nutzende nur eine Zahl eintippen muss um die Rückfrage zu stellen)\nZusammenfassung der Internetseiten, Produkte und Services\nReferenzen, Verweise auf Partner und Kunden\nUmsatzentwicklung und Börsenkurse\nZusammenfassung des Geschäftberichtes (\nVerkaufsoptionen (dann Feld für das gewünschte Produkt, in meinem Fall z.B. \"Cloud-Services\" siehe deine Knowledge base Vektordatenbank, da habe ich alle Produkte von IONOS Cloud hinterlegt)\nSuche nach Ansprechpartnern (LinkedIn, XING, ... ?)\nWie könnten die Spannungen und Wirtschaftskrieg zwischen Amerika und Europa diese Partnerschaft beeinflussen? \n\nUse the Thinking tool to think about something. It will not obtain new information or change the database, but just append the thought to the log. Use it when complex reasoning or some cache memory is needed.\n\nBenutze den MCP Searxng für Internetsuchen mitfolgenden Argumentmöglichkeiten:\nAvailable Search Parameters (for Tool Arguments JSON)\nThe search tool supports the following parameters within the JSON object (only q is required):\n\nq (required): The search query string\ncategories: Comma-separated list of search categories\nengines: Comma-separated list of search engines to use\nlanguage: Language code for the search\ntime_range: Time range for results (day, month, year)\nsafesearch: Safe search level (0: None, 1: Moderate, 2: Strict)\nimage_proxy: Proxy image results through SearXNG\nenabled_plugins: Comma-separated list of enabled plugins\ndisabled_plugins: Comma-separated list of disabled plugins\nenabled_engines: Comma-separated list of enabled engines\ndisabled_engines: Comma-separated list of disabled engines\nformat: Output format (json, csv, rss, html). Defaults to json.\n"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "meta-llama/Llama-3.3-70B-Instruct",
+          "mode": "list",
+          "cachedResultName": "meta-llama/Llama-3.3-70B-Instruct"
+        },
+        "options": {
+          "temperature": 0.5
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -540,
+        800
+      ],
+      "id": "93a50cdc-6400-4eae-af76-e1bad0874f24",
+      "name": "IONOS AI HUB llama 3.3 70B 8fp",
+      "credentials": {
+        "openAiApi": {
+          "id": "bqac4HszaKbywWEe",
+          "name": "Ionos"
+        }
+      },
+      "notes": "meta-llama/Llama-3.3-70B-Instruct\n"
+    },
+    {
+      "parameters": {
+        "model": "=BAAI/bge-large-en-v1.5",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        60,
+        940
+      ],
+      "id": "fedc4f5e-4bc4-433c-82f2-ac9170cff21f",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "bqac4HszaKbywWEe",
+          "name": "Ionos"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        1260
+      ],
+      "id": "ca665197-83de-4ddb-b5e4-a28ec0c2b60b",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "56a3d78c-808d-4582-abac-d71228ac2590",
+              "name": "FRL1",
+              "value": "Gegenstand der Förderung  Die Förderung im Rahmen dieser Förderrichtlinie umfasst folgende Förderschwerpunkte  (FSP):  -  FSP 1: Information und Aktivierung in den Moorregionen  -  FSP 2: Moorbodenschutz-Konzepte  -  FSP 3: Moorbodenschutzmanagement  -  FSP 4: Länderübergreifende Strategien zum Moorbodenschutz in Deutschland  Grundsätzlich gilt:  -  Es werden nur Projekte gefördert, die dem Ziel einer dauerhaften und weitgehenden  Wiedervernässung von Moorböden dienen. Dabei können die geförderten Projekte  Moorböden in den verschiedenen Ausgangslagen adressieren, wie z. B.:  -  land- oder forstwirtschaftlich genutzte Moorböden,   -  Moorböden, die nicht land- oder forstwirtschaftlich genutzt werden,   -  unter Naturschutz stehende Moorböden,   -  Moorböden, die keinen naturschutzrechtlichen Status aufweisen.  -  Die Zuwendungsempfangenden sollen die geförderten Maßnahmen bekannt und  sichtbar machen, um eine möglichst große Breitenwirkung der Förderung zu  erreichen. Damit im Zusammenhang stehende Aktivitäten sind im Antrag darzulegen.  -  Nicht gefördert werden insbesondere konkrete Planungen zur Umsetzung investiver  Wiedervernässungsmaßnahmen sowie flächen- und betriebsbezogene individuelle  Beratungsleistungen.  Im Einzelnen werden folgende Maßnahmen gefördert:      7 von 20 | www.bmuv.de    Förderschwerpunkt 1: Information und Aktivierung in den Moorregionen  Gefördert werden Moorbodenschutz-Maßnahmen zur Information, zur Sensibilisierung sowie  zur Akzeptanzsteigerung in einzelnen Moorregionen. Diese Maßnahmen sollen den  Transformationsprozess in den für den Moorbodenschutz relevanten Bezugsräumen  vorgelagert oder übergeordnet begleiten und somit die dauerhafte und weitgehende  Wiedervernässung von Moorböden in den verschiedenen Ausgangslagen konkret  unterstützen. Im Ergebnis sollen die geförderten Maßnahmen die Akzeptanz für  Wiedervernässungsmaßnahmen in den einzelnen Bezugsräumen schaffen bzw. erhöhen,  indem die Akteur*innen von Beginn an partizipativ in die Prozesse eingebunden werden.  Zudem sollen Akteur*innen in die Lage versetzt werden, geeignete Fördermaßnahmen zu  identifizieren und konktrete Wiedervernässungsmaßnahmen umzusetzen.  Förderschwerpunkt 1.1: Informationsmaßnahmen  Gefördert werden zielgruppenspezifische, auf die jeweiligen Moorregionen zugeschnittene  Informationsangebote zur Akzeptanzsteigerung (z. B. digitale Medien,  Informationsveranstaltungen, Broschüren) für die betroffenen Akteur*innen. Zielgruppen der  Maßnahmen sind insbesondere Flächeneigentümer*innen und -nutzer*innen,  Anwohner*innen, lokale Bevölkerung sowie Akteur*innen aus der Wasser-, Land- und  Forstwirtschaft, den Verbänden und der Verwaltung.  Förderschwerpunkt 1.2: Qualifizierungsmaßnahmen  Gefördert werden:  a.  die Entwicklung und Durchführung von zielgruppenspezifischen und  bedarfsgerechten Qualifizierungsmaßnahmen zum Moorbodenschutz in den  jeweiligen Moorregionen (Fort- und Weiterbildungsangebote) für Verwaltungen,  Behörden und Verbände (Wasser- und Bodenverbände oder Strukturen mit einem  vergleichbaren Aufgabenprofil),  b.  die Inanspruchnahme von Qualifizierungsmaßnahmen zum Moorbodenschutz (Fort-  und Weiterbildungsangebote) durch Verwaltungen, Behörden und Verbände  (Wasser- und Bodenverbände oder Strukturen mit einem vergleichbaren  Aufgabenprofil).  Förderschwerpunkt 2: Moorbodenschutz-Konzepte  Gefördert wird die Erstellung eines Konzeptes, das räumliche und sachliche  Wiedervernässungspotenziale in einer Moorregion identifiziert und Wege für die  Erschließung dieser Potenziale aufzeigt. Das Konzept soll die Entscheidungsgrundlage für  8 von 20 | www.bmuv.de    eine sinnvolle Wiedervernässung vor Ort darstellen und ist in Zusammenarbeit mit den  Betroffenen zu erarbeiten. Für die Entwicklung des Konzeptes sind grundsätzlich  Beteiligungsprozesse durchzuführen.  Förderschwerpunkt 3: Moorbodenschutzmanagement  Gefördert wird der Einsatz von Moorbodenschutzmanager*innen. Sie sollen den Weg für die  koordinierte und organisierte Umsetzung eines nachhaltigen klimaverträglichen  Moorbodenschutzmanagements vor Ort bereiten.   Die Moorbodenschutzmanager*innen sollen vielfältige Aufgaben übernehmen und eine  zentrale Rolle bei der strukturierten Umsetzung der Wiedervernässungsmaßnahmen spielen.  Darunter können unter anderem folgende Aufgaben zählen:  -  die Steuerung, Moderation und Koordination des Transformationsprozesses hin zu  einer dauerhaften und weitgehenden Wiedervernässung von Moorböden,  -  die Koordinierung und Durchführung von Maßnahmen gemäß FSP 1 zur Information,  zur Sensibilisierung sowie zur Akzeptanzsteigerung, die den Transformationsprozess  vorgelagert oder übergeordnet begleiten und somit die dauerhafte und weitgehende  Wiedervernässung von Moorböden konkret unterstützen (Ausgaben für Aufgaben aus  FSP 1 sind hier ebenfalls förderfähig),   -  die Koordinierung und Erstellung von Konzepten zur Umsetzung von  Moorbodenschutzmaßnahmen gemäß FSP 2 (Ausgaben für Aufgaben aus FSP 2  sind hier ebenfalls förderfähig),  -  der Aufbau von koordinierenden und organisierenden Strukturen für die Umsetzung  eines nachhaltigen klimaverträglichen Moorbodenschutzmanagements,  -  die Begleitung der Umsetzung von Moorbodenschutz-Konzepten, die im Rahmen  dieser Förderrichtlinie entwickelt wurden oder bereits vorhanden sind,   -  das Aufsetzen und die Steuerung komplexer und mehrjähriger Vorhaben zur  Wiedervernässung im Rahmen flächenbezogener Fördermaßnahmen,   -  die Wahrnehmung der Funktion eines/einer Ansprechpartners/Ansprechpartnerin zu  den verschiedenen Aspekten im Zusammenhang mit der  Moorbodenwiedervernässung für Flächeneigentümer*innen und –nutzer*innen,  Anwohner*innen, die lokale Bevölkerung sowie Akteur*innen aus der Wasser-, Land-  und Forstwirtschaft, dem Naturschutz und der Verwaltung.      9 von 20 | www.bmuv.de    Förderschwerpunkt 4: Länderübergreifende Strategien zum Moorbodenschutz in  Deutschland  Gefördert wird die Erstellung, inklusive Beteiligungsprozess und Veröffentlichung von  länderübergreifenden Strategien zum Moorbodenschutz in Deutschland, die zentrale  Aspekte einer dauerhaften und weitgehenden Wiedervernässung von Moorböden beinhalten.  Diese Strategien können sowohl Ziele zu naturschutzfachlichen Aspekten oder  Klimaschutzwirkungen des Moorbodenschutzes in den Fokus stellen, als auch wirtschaftliche  Ziele – insbesondere für die betroffenen Akteur*innen aus Land- und Forstwirtschaft –  definieren und so aufzeigen, wie man sich den bestehenden Herausforderungen stellen,  aber auch neue wirtschaftliche Chancen nutzen möchte.   Die geförderten Projekte des FSP 4 sollen den faktenbasierten und informierten  gesellschaftlichen Diskurs zu Moorbodenschutz in Deutschland stärken und sicherstellen,  dass die Positionen der unterschiedlichen Akteursgruppen Eingang in die  gesellschaftspolitische Diskussion finden. Sie tragen dazu bei, dass die unterschiedlichen  Positionen der verschiedenen Akteur*innen bei der Erreichung der Klimaschutzziele  berücksichtigt werden, darunter auch kritische Positionen. Die geförderten Strategien sollen  sowohl der Diskussion, der Sensiblisierung und der Aktivierung auf politischer Ebene dienen,  als auch die direkt betroffenen Akteursgruppen erreichen, um die voraussichtlichen  Rahmenbedingungen für die Wiedervernässungsprozesse möglichst frühzeitig transparent  zu kommunizieren. Folgende Teilziele werden damit durch die Projekte des FSP 4 verfolgt:  -  inhaltliche und politische Auseinandersetzung mit dem Moorbodenschutz in  Deutschland,  -  Offenlegung und angemessene Abbildung der unterschiedlichen Interessen und  Positionen der unterschiedlichen Akteursgruppen,  -  Verbesserung der Kommunikation (z. B. faktenbasiert, dadurch sachlicher, weniger  polarisierend),  -  Verstärkung des Austausches zwischen den relevanten Akteur*innen.  ",
+              "type": "string"
+            },
+            {
+              "id": "dd3acac8-4907-47b5-9cec-9befe0b4e0df",
+              "name": "",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -440,
+        1260
+      ],
+      "id": "48433406-b316-4ac9-8ee2-bb67120658dd",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "qdrantCollection": {
+          "__rl": true,
+          "value": "FRL1_",
+          "mode": "list",
+          "cachedResultName": "FRL1_"
+        },
+        "options": {
+          "collectionConfig": ""
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+      "typeVersion": 1.1,
+      "position": [
+        -160,
+        1240
+      ],
+      "id": "034384dd-e2bf-436b-84eb-3ec99b01b183",
+      "name": "Qdrant Vector Store",
+      "credentials": {
+        "qdrantApi": {
+          "id": "yjOqryInOqVqiVIj",
+          "name": "QdrantApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "=BAAI/bge-m3",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -240,
+        1440
+      ],
+      "id": "eaf28822-1131-4fa0-820f-2a8a22ac09ab",
+      "name": "Embeddings OpenAI2",
+      "credentials": {
+        "openAiApi": {
+          "id": "bqac4HszaKbywWEe",
+          "name": "Ionos"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "9109666b-5479-4ae1-80ae-34feb294bb6d",
+      "name": "Default Data Loader1",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1,
+      "position": [
+        -20,
+        1400
+      ]
+    },
+    {
+      "parameters": {
+        "chunkSize": 100,
+        "options": {}
+      },
+      "id": "c543123e-04cd-48db-a9c6-9538da85a731",
+      "name": "Recursive Character Text Splitter1",
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        140,
+        1520
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolName": "knowledge",
+        "toolDescription": "Benutze dieses Werkzeug um Antworten zu Fragen zu finden. Benutze den Input genau wie vom Benutzer gefragt.",
+        "qdrantCollection": {
+          "__rl": true,
+          "value": "FRL1_",
+          "mode": "list",
+          "cachedResultName": "FRL1_"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+      "typeVersion": 1.1,
+      "position": [
+        180,
+        800
+      ],
+      "id": "953106eb-0078-4a32-8f1d-67dd28355577",
+      "name": "Wissensdatenbank",
+      "credentials": {
+        "qdrantApi": {
+          "id": "yjOqryInOqVqiVIj",
+          "name": "QdrantApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainRetrievalQa",
+      "typeVersion": 1.5,
+      "position": [
+        -40,
+        100
+      ],
+      "id": "bb87a521-38f3-4969-9d8f-7ed93de4c2da",
+      "name": "Question and Answer Chain"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -60,
+        300
+      ],
+      "id": "700b1ca5-2da8-4433-a1ed-1ca829edad6d",
+      "name": "IONOS AI HUB llama 3.3 70B 8fp1",
+      "credentials": {
+        "openAiApi": {
+          "id": "XPcvj7x9NAgr7ELy",
+          "name": "OpenAi account 2"
+        }
+      },
+      "notes": "meta-llama/Llama-3.3-70B-Instruct\n"
+    },
+    {
+      "parameters": {
+        "model": "=BAAI/bge-large-en-v1.5",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        380,
+        520
+      ],
+      "id": "f4edc988-001c-49c8-9a74-53097919868a",
+      "name": "Embeddings OpenAI1",
+      "credentials": {
+        "openAiApi": {
+          "id": "bqac4HszaKbywWEe",
+          "name": "Ionos"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.retrieverVectorStore",
+      "typeVersion": 1,
+      "position": [
+        160,
+        240
+      ],
+      "id": "763b9728-48b4-413b-b40c-277de6775a1e",
+      "name": "Vector Store Retriever"
+    },
+    {
+      "parameters": {
+        "qdrantCollection": {
+          "__rl": true,
+          "value": "FRL1_",
+          "mode": "list",
+          "cachedResultName": "FRL1_"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+      "typeVersion": 1.1,
+      "position": [
+        160,
+        380
+      ],
+      "id": "b1641311-2c64-46c5-b434-d234d903debb",
+      "name": "Qdrant Vector Store1",
+      "credentials": {
+        "qdrantApi": {
+          "id": "yjOqryInOqVqiVIj",
+          "name": "QdrantApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "invoke_n8n_agent",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "ad611aae-6af2-4b70-ac79-223a51def9b7",
+      "name": "Webhook1",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1220,
+        740
+      ],
+      "webhookId": "4a839da9-b8a2-45f8-bcaf-c484f9a5912d"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "75ebfdef-c8e2-4c3e-b716-1479d0cc2a73",
+              "name": "chatInput",
+              "value": "={{ $json?.chatInput || $json.body.chatInput }}",
+              "type": "string"
+            },
+            {
+              "id": "59b7a20f-0626-4861-93e2-015d430c266e",
+              "name": "sessionId",
+              "value": "={{ $json?.sessionId || $json.body.sessionId}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b96d21b4-433f-4592-bbb3-23273c3984d9",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -840,
+        600
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IONOS AI HUB llama 3.3 70B 8fp": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Wissensdatenbank",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Qdrant Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI2": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Qdrant Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader1": {
+      "ai_document": [
+        [
+          {
+            "node": "Qdrant Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter1": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader1",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wissensdatenbank": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IONOS AI HUB llama 3.3 70B 8fp1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Question and Answer Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Qdrant Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vector Store Retriever": {
+      "ai_retriever": [
+        [
+          {
+            "node": "Question and Answer Chain",
+            "type": "ai_retriever",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qdrant Vector Store1": {
+      "ai_vectorStore": [
+        [
+          {
+            "node": "Vector Store Retriever",
+            "type": "ai_vectorStore",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "9e4a9e4e-3c4f-4230-917c-9df4263560f0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "39c837f2da3b3a02687751a3d3abd45d78586542c746a5e2f92e5e5af9e40d7f"
+  },
+  "id": "IQ0eh9rgRRh4aTsh",
+  "tags": []
+}

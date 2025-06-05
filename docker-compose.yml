@@ -1,0 +1,199 @@
+volumes:
+  open-webui:
+  searxng:
+  n8n:
+  qdrant-data:
+  docling-data:
+  redis-data:
+
+
+networks:
+  company_ai_network:
+    driver: bridge
+
+version: '3'
+services:
+  openwebui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    restart: always
+    networks:
+      - company_ai_network
+    ports:
+      - "3000:8080"
+    volumes:
+      - open-webui:/app/backend/data
+    environment:
+      - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY}  # Für Sessions
+      - LOG_LEVEL=INFO                        # Debugging
+      - DISABLE_SIGNUP=True                   # Registrierung steuern
+      #- WEBUI_AUTH=${WEBUI_AUTH}
+      - WEBUI_NAME=${WEBUI_NAME}
+      #- WEBUI_URL=${WEBUI_URL}
+      #- FRONTEND_BUILD_DIR=${FRONTEND_BUILD_DIR}
+      - ENABLE_OPENAI_API=true
+      - OPENAI_API_KEY=${IONOS_TOKEN} #das ist nicht OpenAI sondern Ionos
+      - OPENAI_BASE_URL=${IONOS_BASE_URL}
+      # Redis Konfiguration
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-your_secure_password}@redis:6379/0
+      - WEBSOCKET_MANAGER=redis
+      - WEBSOCKET_REDIS_URL=redis://:${REDIS_PASSWORD:-your_secure_password}@redis:6379/0
+      - ENABLE_WEBSOCKET_SUPPORT=true
+      # PostgreSQL Konfiguration (IONOS Managed)
+      - DATABASE_URL=${IONOS_POSTGRES_URL}?sslmode=require&connect_timeout=10
+      - DATABASE_POOL_SIZE=50
+      - DATABASE_POOL_MAX_OVERFLOW=20
+      - DATABASE_POOL_TIMEOUT=60
+      - DATABASE_POOL_RECYCLE=1800
+      - DATABASE_POOL_PRE_PING=true
+      # LDAP Konfiguration (Microsoft Entra ID) - AUSKOMMENTIERT
+      #- ENABLE_LDAP=true
+      #- LDAP_SERVER=ldaps://login.microsoftonline.com
+      #- LDAP_PORT=636
+      #- LDAP_BASE_DN=DC=yourdomain,DC=com
+      #- LDAP_BIND_DN=CN=ServiceAccount,DC=yourdomain,DC=com
+      #- LDAP_BIND_PASSWORD=${LDAP_BIND_PASSWORD}
+      #- LDAP_USER_SEARCH_BASE=DC=yourdomain,DC=com
+      #- LDAP_USER_SEARCH_FILTER=(sAMAccountName={username})
+      #- LDAP_USER_ATTRIBUTES=mail,displayName,memberOf
+      #- LDAP_GROUP_SEARCH_BASE=DC=yourdomain,DC=com
+      #- LDAP_GROUP_SEARCH_FILTER=(objectClass=group)
+      #- LDAP_GROUP_ATTRIBUTES=cn,member
+      #- LDAP_ADMIN_GROUP=CN=OpenWebUI-Admins,DC=yourdomain,DC=com
+      # Qdrant Konfiguration
+      - VECTOR_DB=qdrant
+      - QDRANT_URI=http://qdrant:6333
+      - QDRANT_API_KEY=${QDRANT_API_KEY:-sfsfsfsfsfsfssf}
+      - QDRANT_TIMEOUT=30
+      - QDRANT_HEALTH_CHECK_URL=/collections
+      # Docling Konfiguration
+      - DOCLING_SERVER_URL=http://docling-serve:5001
+      - DOCLING_OCR_ENGINE=auto
+      - DOCLING_OCR_LANG=deu
+      - DOCLING_DO_PICTURE_DESCRIPTION=true
+    depends_on:
+      - qdrant
+      - docling-serve
+      - redis
+
+  nginx:
+    image: nginx:mainline
+    container_name: nginx
+    ports:
+      - "0.0.0.0:80:80"
+      - "0.0.0.0:443:443"
+    volumes:
+      - ./conf.d:/etc/nginx/conf.d
+      - ./ssl:/etc/nginx/ssl
+    depends_on:
+      - openwebui
+      - searxng
+    restart: unless-stopped
+    networks:
+      - company_ai_network
+    environment:
+      - WEBUI_NAME=owui
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant
+    restart: always
+    networks:
+      - company_ai_network
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant-data:/qdrant/storage
+    environment:
+      - QDRANT_ALLOW_CORS=true
+
+  searxng:
+      image: searxng/searxng
+      container_name: searxng
+      restart: always
+      networks:
+        - company_ai_network
+      ports:
+        - "8081:8080"  # Geändert auf 8081 um Konflikte zu vermeiden
+      volumes:
+        - searxng:/etc/searxng
+        - ./settings.yml:/etc/searxng/settings.yml
+      environment:
+        - BASE_URL=http://searxng:8080/  # Geändert auf den Container-Namen
+        - INSTANCE_NAME=Safe Search Engine
+        - UWSGI_WORKERS=4
+        - UWSGI_THREADS=2
+
+  docling-serve:
+    image: ghcr.io/docling-project/docling-serve:latest
+    container_name: docling-serve
+    restart: always
+    networks:
+      - company_ai_network
+    ports:
+      - "8082:5001"
+    volumes:
+      - docling-data:/app/data
+    environment:
+      - DOCLING_API_KEY=${DOCLING_API_KEY:-default_key}
+      - DOCLING_SERVE_ENABLE_UI=true
+      - DOCLING_SERVE_HOST=0.0.0.0
+      - DOCLING_SERVE_PORT=5001
+      - DOCLING_SERVE_ALLOW_ORIGINS=["*"]
+      # Qdrant Konfiguration für Docling
+      - QDRANT_URL=http://qdrant:6333
+      - QDRANT_API_KEY=${QDRANT_API_KEY:-sfsfsfsfsfsfssf}
+      - QDRANT_COLLECTION_NAME=docling
+    depends_on:
+      - qdrant
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    restart: always
+    networks:
+      - company_ai_network
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes --maxmemory 4gb --maxmemory-policy allkeys-lru
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-your_secure_password}
+
+  n8n:
+    image: n8nio/n8n
+    container_name: n8n
+    restart: always
+    networks:
+      - company_ai_network
+    ports:
+      - "5678:5678"
+    volumes:
+      - n8n:/home/node/.n8n
+    environment:
+      - N8N_HOST=${N8N_HOST:-localhost}
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=${N8N_PROTOCOL:-http}
+      - NODE_ENV=production
+      - WEBHOOK_URL=${N8N_WEBHOOK_URL:-http://localhost:5678/}
+      - GENERIC_TIMEZONE=${GENERIC_TIMEZONE:-Europe/Berlin}
+      # PostgreSQL Konfiguration für n8n (IONOS Managed)
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=${IONOS_POSTGRES_HOST}
+      - DB_POSTGRESDB_PORT=${IONOS_POSTGRES_PORT}
+      - DB_POSTGRESDB_DATABASE=${IONOS_POSTGRES_DB}
+      - DB_POSTGRESDB_USER=${IONOS_POSTGRES_USER}
+      - DB_POSTGRESDB_PASSWORD=${IONOS_POSTGRES_PASSWORD}
+      - DB_POSTGRESDB_SSL=true
+      - DB_POSTGRESDB_SSL_REJECT_UNAUTHORIZED=true
+      - DB_POSTGRESDB_POOL_SIZE=20
+      - DB_POSTGRESDB_POOL_MAX_OVERFLOW=10
+      - DB_POSTGRESDB_POOL_TIMEOUT=60
+      - DB_POSTGRESDB_POOL_RECYCLE=1800
+      - DB_POSTGRESDB_POOL_PRE_PING=true
+      - DB_POSTGRESDB_CONNECTION_TIMEOUT=10000
+      - DB_POSTGRESDB_STATEMENT_TIMEOUT=30000
+    depends_on:
+      - redis
