@@ -1,4 +1,4 @@
-# Functions
+# OpenWebUI
 
 All "Open WebUI" JSON files inside this directory will be pre-loaded into the Open WebUI database (`postgres-owui`).
 

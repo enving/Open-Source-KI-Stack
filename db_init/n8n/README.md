@@ -1,4 +1,4 @@
-# Workflows
+# n8n
 
 All workflows inside this directory will be pre-loaded into the n8n database (`postgres-n8n`). 
 If one with the same ID already exists in the database, the query will silently fail and be skipped.
