@@ -44,31 +44,15 @@ Docker/Docker Desktop - Required to run all services
 Ionos dcd cloud login
 
 Before running the services, it is adviced to set up your environment variables. **If you don't, the services will get default ports and passwords. Be aware!**
-Make a copy of .env.example and rename it to .env in the root directory of the project
-
-Set the following required environment variables 
+Make a copy of .env.example and rename it to .env in the root directory of the project and set the variables accordingly.
 
 > [!IMPORTANT]
 > Make sure to generate secure random values for all secrets. Never use the example values in production.
 
-3. Set the following environment variables if deploying to production, otherwise leave commented:
-   ```bash
-   ############
-   # Caddy Config
-   ############
-   N8N_HOSTNAME=n8n.yourdomain.com
-   WEBUI_HOSTNAME=:openwebui.yourdomain.com
-   SEARXNG_HOSTNAME=searxng.yourdomain.com
-   LETSENCRYPT_EMAIL=your-email-address
-   ```   
-
----
-
-ionos token auf 3 versch. Seiten in Openwebui anlegen
-
-ionos token als credential in n8n anlegen
-
-qdrant qdrant:6333 API Key anlegen und bei Openwebui hinterlegen
+Further steps might be needed, such as: 
+ - Ionos token auf 3 versch. Seiten in Openwebui anlegen
+ - ionos token als credential in n8n anlegen
+ - qdrant qdrant:6333 API Key anlegen und bei Openwebui hinterlegen
 
 ## Upgrading
 
@@ -89,3 +73,4 @@ There is also a so called "Testing" environment where reverse proxy, docling and
 ```
 docker compose -f .\docker-compose.testing.yml up -d
 ```
+Ironically enough, the testing branch was *not* tested. Use it at your own risk.
