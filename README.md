@@ -24,9 +24,9 @@ After that, the entire enviroment should be **automatically prepared**\* and com
 
 \* To customize how the databases are populated on first startup, refer to the README in `db_init` and deeper folders.
 
-function KI workflow: ist die derzeitige function pipe zwischen openwebui und n8n. kann so wie sie ist in der openwebui oberfläche uner Admin panel--> Funktionen importiert werden. Die Variablen / vaults müssen dann noch ggf. angepasst werden auf deine jeweilige n8n instanz
+Function KI workflow: Die Variablen / vaults müssen dann noch ggf. angepasst werden auf deine jeweilige n8n instanz
 
-n8n_RAG_ionos_Openwebui: kann direkt so in n8n reingeladen werden. musst natürlich die credentials anlegen
+n8n_RAG_ionos_Openwebui: Musst natürlich die credentials anlegen
 
 Bei Verwendung weiterer Frameworks müssen wir gucken das Nutzung kommerziell möglich (findet man im jeweiligen repo unter lizenz). 
 
