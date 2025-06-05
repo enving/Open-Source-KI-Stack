@@ -51,11 +51,11 @@ One of:
 - Linux (preferably Unbuntu) with Nano, Git, and Docker installed
 - Windows 10/11 with Docker Desktop and WSL2 (Ubuntu) installed
 
-Before you begin, make sure you have the following software installed:
+Before you begin, make sure you have the following software installed/set up:
 
-Git/GitHub Desktop - For easy repository management
-Docker/Docker Desktop - Required to run all services
-Ionos dcd cloud login
+- Git/GitHub Desktop - For easy repository management
+- Docker/Docker Desktop - Required to run all services
+- Ionos dcd cloud login
 
 Before running the services, it is adviced to set up your environment variables. **If you don't, the services will get default ports and passwords. Be aware!**
 Make a copy of .env.example and rename it to .env in the root directory of the project and set the variables accordingly.
