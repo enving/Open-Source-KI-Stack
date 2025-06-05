@@ -16,11 +16,13 @@ cp .env.example .env
 docker compose -f .\docker-compose.dev.yml up -d
 ```
 
-After that, the entire enviroment should come up, mainly:
+After that, the entire enviroment should be automatically prepared and come up, mainly:
 
 - n8n on: http://localhost:5678/
 - openwebui on: http://localhost:3000/
 - qdrant on: http://localhost:6333/
+
+To customize how the databases are populated on first startup, refer to the README in `db_init` and deeper folders.
 
 function KI workflow: ist die derzeitige function pipe zwischen openwebui und n8n. kann so wie sie ist in der openwebui oberfläche uner Admin panel--> Funktionen importiert werden. Die Variablen / vaults müssen dann noch ggf. angepasst werden auf deine jeweilige n8n instanz
 
