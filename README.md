@@ -24,6 +24,20 @@ After that, the entire enviroment should be **automatically prepared**\* and com
 
 \* To customize how the databases are populated on first startup, refer to the README in `db_init` and deeper folders.
 
+### Login
+
+The databases get automatically populated and set with a default user:
+
+```
+User: admin@admin.com
+Password: Dc.3Dk6DX!ZpfUj
+```
+
+Use the above credentials, in development, to access n8n and openwebui.
+
+
+### Other features
+
 Function KI workflow: Die Variablen / vaults müssen dann noch ggf. angepasst werden auf deine jeweilige n8n instanz
 
 n8n_RAG_ionos_Openwebui: Musst natürlich die credentials anlegen
