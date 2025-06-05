@@ -1,0 +1,389 @@
+{
+  "name": "Response with RAG v1",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -420,
+        -80
+      ],
+      "id": "467b5f77-6b00-416e-a527-510f364fe2f3",
+      "name": "When chat message received",
+      "webhookId": "07c9c686-4214-451c-b2db-ff48b456680b"
+    },
+    {
+      "parameters": {
+        "jsCode": "const sessionId = $input.first().json.sessionId;\nconst newUserMessage = $input.first().json.chatInput;\n// @ts-ignore\nconst memory = $getWorkflowStaticData(\"global\");\n\nmemory.users = memory.users || {};\nmemory.users[sessionId] = memory.users[sessionId] || [];\n\nmemory.users[sessionId].push({ role: \"user\", content: newUserMessage });\n\n// Trim to last N messages\nconst maxMessages = 10;\nif (memory.users[sessionId].length > maxMessages) {\n  memory.users[sessionId] = memory.users[sessionId].slice(-maxMessages);\n}\n\nreturn [\n  {\n    json: {\n      messages: memory.users[sessionId],\n      sessionId,\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -240,
+        -80
+      ],
+      "id": "b8edc7a6-eaca-49cd-9a8c-e2d5d8970e9b",
+      "name": "Sliding Window Chat"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        320,
+        100
+      ],
+      "id": "01a8af12-8b5d-4fd3-9178-2e4fbff271d4",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "hx7EkpJ9bweFW0Cz",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b970f612-af7d-4a4e-abe0-73f8fd74c18e",
+              "leftValue": "={{ $json.score }}",
+              "rightValue": 0.3,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        580,
+        -80
+      ],
+      "id": "c8898d20-9f59-4c3b-b832-401268ed467c",
+      "name": "Filter by Score",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const sessionId = $input.first().json.sessionId;\nconst assistantMessage = $input.first().json.output;\n// @ts-ignore\nconst memory = $getWorkflowStaticData(\"global\");\n\nmemory.users = memory.users || {};\nmemory.users[sessionId] = memory.users[sessionId] || [];\n\n// Add assistant message\nmemory.users[sessionId].push({ role: \"assistant\", content: assistantMessage });\n\n// Trim to last N messages\nconst maxMessages = 6;\nif (memory.users[sessionId].length > maxMessages) {\n  memory.users[sessionId] = memory.users[sessionId].slice(-maxMessages);\n}\n\nreturn [\n  {\n    json: {\n      messages: memory.users[sessionId],\n      sessionId,\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1500,
+        -180
+      ],
+      "id": "c10519d2-b238-4e56-b270-3298e6faa35a",
+      "name": "Add Assistant Message to Sliding Window"
+    },
+    {
+      "parameters": {
+        "content": "# Normal usage - RAG always on",
+        "height": 200,
+        "width": 1140,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        -160
+      ],
+      "id": "d64f6c0c-d278-4d5a-9a13-60efa0cc2663",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "meta-llama-3-8b-instruct",
+          "mode": "id"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "Your task is to summarize the conversation below in a standalone message for use in a Retrieval-Augmented Generation (RAG) scenario. Ensure that all time or contextual references are expressed using absolute terms (e.g., specific dates or facts), not relative ones (e.g., \"last week\", \"recently\", \"14 days ago\"). Prefer keywords and key points over small talk.",
+              "role": "system"
+            },
+            {
+              "content": "=<CHAT_HISTORY>\n{{ $json.messages.map(m => `${m.role.toUpperCase()}: ${m.content}`).join('\\n') }}\n</CHAT_HISTORY>"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -60,
+        -80
+      ],
+      "id": "5b6e0441-d434-48c5-9d36-376c8a2e6a36",
+      "name": "AI Summarize",
+      "credentials": {
+        "openAiApi": {
+          "id": "p3osZWy5ujbkS1sq",
+          "name": "OpenAi account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "maxItems": 15
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        760,
+        -80
+      ],
+      "id": "3644ba93-7088-4614-a8dc-94d3c40f45ef",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "mode": "load",
+        "qdrantCollection": {
+          "__rl": true,
+          "value": "FRL1_",
+          "mode": "list",
+          "cachedResultName": "FRL1_"
+        },
+        "prompt": "={{ $json.message.content }}",
+        "topK": 8,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+      "typeVersion": 1.1,
+      "position": [
+        260,
+        -80
+      ],
+      "id": "c700f2cf-6595-4afa-822d-975e8acf6863",
+      "name": "Vector Retriever",
+      "credentials": {
+        "qdrantApi": {
+          "id": "ADYdtB5U7cSglmkV",
+          "name": "QdrantApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "meta-llama-3-8b-instruct",
+          "mode": "id"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=This is the current chat history between you and the user:\n<CHAT_HISTORY>\n{{ $('Sliding Window Chat').item.json.messages.slice(0, -1).map(m => `${m.role.toUpperCase()}: ${m.content}`).join('\\n') }}\n</CHAT_HISTORY>\n\nWe've found up-to-date information that could eventually help you (the assistant) answer the users question. Use it to your favor:\n<RAG>\n{{ $('Filter by Score').all().map(i => i.json.document.pageContent).join('\\n') }}\n</RAG>\n\nUse the infomation provided to answer the user. Always speak the same language of the user; Make your best guess about the language.",
+              "role": "system"
+            },
+            {
+              "content": "={{ $('Sliding Window Chat').item.json.messages.slice(-1)[0].content }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        1120,
+        -80
+      ],
+      "id": "fee0a78d-e348-4f50-9c8d-03d28be48bed",
+      "name": "AI Answer",
+      "credentials": {
+        "openAiApi": {
+          "id": "p3osZWy5ujbkS1sq",
+          "name": "OpenAi account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7db5e64a-5909-404a-8630-c56988bcc446",
+              "name": "output",
+              "value": "={{ $json.message.content }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1500,
+        0
+      ],
+      "id": "cb59a50a-5849-42a6-9897-0133ca363301",
+      "name": "Convert to Output"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "vectordata",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        940,
+        -80
+      ],
+      "id": "5d732da7-a16c-4b26-84b9-05b5fc211c1c",
+      "name": "Aggregate"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Sliding Window Chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sliding Window Chat": {
+      "main": [
+        [
+          {
+            "node": "AI Summarize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Vector Retriever",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter by Score": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Summarize": {
+      "main": [
+        [
+          {
+            "node": "Vector Retriever",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vector Retriever": {
+      "main": [
+        [
+          {
+            "node": "Filter by Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Answer": {
+      "main": [
+        [
+          {
+            "node": "Add Assistant Message to Sliding Window",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Convert to Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to Output": {
+      "main": [
+        []
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "AI Answer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1701a37a-c05f-4030-b2d5-5bd0dd29b5c1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7022dc2def106b2e1732f17e457be6c0c0e1766e8d56066444b7f86f247c7ad3"
+  },
+  "id": "ei0sVSbV1nBIUWLg",
+  "tags": []
+}
