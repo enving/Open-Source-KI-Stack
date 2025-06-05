@@ -26,14 +26,14 @@ After that, the entire enviroment should be **automatically prepared**\* and com
 
 ### Login
 
-The databases get automatically populated and set with a default user:
+When the environment first starts, the initialization scripts create a default user, which is:
 
 ```
 User: admin@admin.com
 Password: Dc.3Dk6DX!ZpfUj
 ```
 
-Use the above credentials, in development, to access n8n and openwebui.
+Use the above credentials to access n8n and openwebui; These should only be used in a development settting, for obvious reasons.
 
 
 ### Other features
@@ -44,7 +44,7 @@ n8n_RAG_ionos_Openwebui: Musst natürlich die credentials anlegen
 
 Bei Verwendung weiterer Frameworks müssen wir gucken das Nutzung kommerziell möglich (findet man im jeweiligen repo unter lizenz). 
 
-#Prerequisites
+# Prerequisites
 
 One of:
 
