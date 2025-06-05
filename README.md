@@ -7,6 +7,19 @@
 
 # Installation
 
+## Option 1: Advanced stack and for rollout Oktober 2025 - manuel imports
+```
+git clone -b main https://github.com/enving/ki_stack
+cd ki_stack
+cp .env.example .env
+docker compose -f ./docker-compose.testing.yml up -d
+```
+
+Dann manueller Import von n8n workflow und Konfigurationsdatei (config.file) in OpenWebui.
+
+
+## Option 2: Basic stack  - automatic imports 
+
 To prepare the development environment, just follow these steps:
 
 ```
