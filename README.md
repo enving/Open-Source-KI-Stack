@@ -82,3 +82,10 @@ docker compose pull
 # Start all services in detached mode
 docker compose -f .\docker-compose.dev.yml up -d
 ```
+
+## Further notes
+
+There is also a so called "Testing" environment where reverse proxy, docling and other services run. To start that instead of the default development environment, use:
+```
+docker compose -f .\docker-compose.testing.yml up -d
+```
