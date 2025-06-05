@@ -5,4 +5,4 @@ If one with the same ID already exists in the database, the query will silently 
 
 These JSON files are also compatible with the native import function found in n8n, so if you already have an existing installation, you can import them manually, too.
 
-Workflows JSON files **have** to start with `workflow_`, otherwise they won't be read. 
+Workflow JSON files **have** to start with `workflow_`, otherwise they won't be read. 
