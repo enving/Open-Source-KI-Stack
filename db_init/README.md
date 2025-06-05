@@ -1,6 +1,6 @@
 # DB_INIT
 
-This directory contains files that initialize all the databases, such as postgres ones for `n8n`, `openwebui` and `qdrant`.
+This directory contains files that initialize all the databases, such as `n8n`, `openwebui` and `qdrant`.
 
 `scripts/entrypoint.sh` kicks off the whole process, which in turn executes all the `.sh` files in that same directory, which populate the databases. 
 
