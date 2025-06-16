@@ -15,7 +15,7 @@ Beide Optionen nutzen derzeit qdrant als von der community für performante und 
 
 # Installation
 
-## Option 1: Advanced stack and for rollout Oktober 2025 - manuel imports
+## Option 1: Advanced stack with manuel imports
 This installation uses docling and searxng within openwebui (see docker compose testing). However there is yet no automatic imports like in option 2 and also the RAG used is the advanced setup within openwebui with docling - not with n8n like in option 2.
 ```
 git clone -b main https://github.com/enving/ki_stack
