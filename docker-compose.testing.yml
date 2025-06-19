@@ -10,7 +10,7 @@ volumes:
 
 
 networks:
-  company_ai_network:
+  xx-network:
     driver: bridge
 
 services:
@@ -19,7 +19,7 @@ services:
     container_name: open-webui
     restart: always
     networks:
-      - company_ai_network
+      - xx-network
     ports:
       - "3000:8080"
     volumes:
@@ -29,12 +29,10 @@ services:
         condition: service_completed_successfully
       qdrant:
         condition: service_started
-      qdrant:
-        condition: service_started
       docling-serve:
         condition: service_started
-      redis:
-        condition: service_started
+      #redis:
+      #  condition: service_started
     environment:
       - LOG_LEVEL=INFO                        # Debugging
       - DISABLE_SIGNUP=True                   # Registrierung steuern
@@ -191,7 +189,7 @@ services:
     env_file:
       - .env
 
-postgres-owui:
+  postgres-owui:
     image: postgres:16
     container_name: postgres-owui
     restart: always
