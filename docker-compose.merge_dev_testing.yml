@@ -9,11 +9,25 @@ volumes:
   postgres-n8n-data:
 
 
+
 networks:
   xx-network:
     driver: bridge
 
 services:
+  hayhooks:
+    build: . # Build from local Dockerfile
+    container_name: hayhooks
+    ports:
+      - "1416:1416"
+    volumes:
+      - ./pipelines:/pipelines
+    environment:
+      - HAYHOOKS_PIPELINES_DIR=/pipelines
+      # Note that this is the REAL OPENAI_API_KEY key
+      # which you should have in your environment variables.
+      # It will be used by hayhooks in chat_with_website pipeline
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
   openwebui:
     image: ghcr.io/open-webui/open-webui:main
     container_name: open-webui
@@ -69,6 +83,14 @@ services:
       - DOCLING_OCR_ENGINE=auto
       - DOCLING_OCR_LANG=deu
       - DOCLING_DO_PICTURE_DESCRIPTION=true
+      #hayhooks integration:
+      #- OPENAI_API_BASE_URL=http://hayhooks:1416
+      # ...and we use a dummy key for the OpenAI API key (not needed)
+      #- OPENAI_API_KEY="dummy"
+      # We disable tags generation and evaluation arena models
+      # as they are not needed for hayhooks
+      #- ENABLE_TAGS_GENERATION=false
+      #- ENABLE_EVALUATION_ARENA_MODELS=false
 
 
   nginx:
