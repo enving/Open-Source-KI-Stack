@@ -16,7 +16,7 @@ networks:
 
 services:
   hayhooks:
-    build: . # Build from local Dockerfile
+    build: . # Build from local Dockerfile (to be integrated from here: https://github.com/deepset-ai/hayhooks-open-webui-docker-compose/tree/main )
     container_name: hayhooks
     ports:
       - "1416:1416"
