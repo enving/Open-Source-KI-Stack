@@ -8,3 +8,5 @@ https://docs.openwebui.com/
 
 ### Ionos 
 siehe unter Ordner Docs/ionos
+
+Ionos AI Hub Endpoint siehe Doku

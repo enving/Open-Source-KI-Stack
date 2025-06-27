@@ -1,0 +1,74 @@
+volumes:
+  open-webui:
+  searxng:
+  redis-data:
+
+networks:
+  company_ai_network:
+    driver: bridge
+
+version: '3'
+services:
+  openwebui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    restart: always
+    networks:
+      - company_ai_network
+    ports:
+      - "3000:8080"
+    volumes:
+      - open-webui:/app/backend/data
+    environment:
+      - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY}
+      - LOG_LEVEL=INFO
+      - DISABLE_SIGNUP=True
+      - WEBUI_NAME=${WEBUI_NAME}
+      - ENABLE_OPENAI_API=true
+      - OPENAI_API_KEY=${IONOS_TOKEN}
+      - OPENAI_BASE_URL=${IONOS_BASE_URL}
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-your_secure_password}@redis:6379/0
+      - WEBSOCKET_MANAGER=redis
+      - WEBSOCKET_REDIS_URL=redis://:${REDIS_PASSWORD:-your_secure_password}@redis:6379/0
+      - ENABLE_WEBSOCKET_SUPPORT=true
+      - DATABASE_URL=postgresql://${IONOS_DB_USER}:${IONOS_DB_PASSWORD}@pg-oemrj7r0kfjipg97.postgresql.de-txl.ionos.com:5432/${IONOS_DB_NAME}
+      - DATABASE_POOL_SIZE=50
+      - DATABASE_POOL_MAX_OVERFLOW=20
+      - DATABASE_POOL_TIMEOUT=60
+      - DATABASE_POOL_RECYCLE=1800
+      - DATABASE_POOL_PRE_PING=true
+    depends_on:
+      - redis
+
+  searxng:
+    image: searxng/searxng
+    container_name: searxng
+    restart: always
+    networks:
+      - company_ai_network
+    ports:
+      - "8081:8080"
+    volumes:
+      - searxng:/etc/searxng
+      - ./settings.yml:/etc/searxng/settings.yml:ro
+    environment:
+      - BASE_URL=http://searxng:8080/
+      - INSTANCE_NAME=Safe Search Engine
+      - UWSGI_WORKERS=2
+      - UWSGI_THREADS=1
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    restart: always
+    networks:
+      - company_ai_network
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --requirepass ${REDIS_PASSWORD:-your_secure_password} --appendonly yes --maxmemory 4gb --maxmemory-policy allkeys-lru
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-your_secure_password}
