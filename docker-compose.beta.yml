@@ -121,12 +121,6 @@ services:
       - DOCLING_SERVE_HOST=0.0.0.0
       - DOCLING_SERVE_PORT=5001
       - DOCLING_SERVE_ALLOW_ORIGINS=["*"]
-      # Qdrant Konfiguration für Docling
-      - QDRANT_URL=http://qdrant:6333
-      - QDRANT_API_KEY=${QDRANT_API_KEY:-sfsfsfsfsfsfssf}
-      - QDRANT_COLLECTION_NAME=docling
-    depends_on:
-      - qdrant
 
   redis:
     image: redis:7-alpine
