@@ -1,0 +1,159 @@
+version: '3.8'
+
+volumes:
+#add redis if more than 1000 users
+  open-webui:
+  searxng:
+  n8n:
+  postgres-owui-data:
+  postgres-n8n-data:
+
+networks:
+  xx-network:
+    driver: bridge
+
+services:
+    tika:
+      image: apache/tika:latest-full
+      container_name: tika
+      networks:
+        - xx-network
+      ports:
+        - "9998:9998"
+      restart: unless-stopped
+
+    openwebui:
+      image: ghcr.io/open-webui/open-webui:main
+      container_name: open-webui
+      restart: always
+      networks:
+        - xx-network
+      ports:
+        - "3000:8080"
+      volumes:
+        - open-webui:/app/backend/data
+      depends_on:
+      #  - docling-serve
+        - postgres-owui
+      environment:
+        - LOG_LEVEL=INFO
+        - DISABLE_SIGNUP=True
+        - WEBUI_NAME=${WEBUI_NAME}
+        - DATABASE_URL=postgresql://owui_user:${POSTGRES_OWUI_PASSWORD:-dev_pwd}@postgres-owui:5432/openwebui
+        - VECTOR_DB=pgvector
+        - PGVECTOR_DB_URL=postgresql://owui_user:${POSTGRES_OWUI_PASSWORD:-dev_pwd}@postgres-owui:5432/openwebui
+        - RAG_EMBEDDING_ENGINE=openai
+        - RAG_EMBEDDING_MODEL=BAAI/bge-m3
+        - RAG_OPENAI_API_KEY=${IONOS_TOKEN}
+        - RAG_OPENAI_API_BASE_URL=https://openai.inference.de-txl.ionos.com/v1
+        - DATABASE_POOL_SIZE=50
+        - DATABASE_POOL_MAX_OVERFLOW=20
+        - DATABASE_POOL_TIMEOUT=60
+        - DATABASE_POOL_RECYCLE=1800
+        - DATABASE_POOL_PRE_PING=true
+        - ENABLE_OPENAI_API=true
+        - OPENAI_API_KEY=${IONOS_TOKEN}
+        - OPENAI_API_BASE_URL=${IONOS_BASE_URL:-https://openai.inference.de-txl.ionos.com/v1}
+        - OPENAI_BASE_URL=${IONOS_BASE_URL:-https://openai.inference.de-txl.ionos.com/v1}
+        - OPENAI_MODEL=${IONOS_OPENAI_MODEL:-mistralai/Mistral-Small-24B-Instruct}
+      env_file:
+        - .env
+
+
+    searxng:
+      image: searxng/searxng
+      container_name: searxng
+      restart: always
+      networks:
+        - xx-network
+      ports:
+        - "8081:8080"
+      volumes:
+        - searxng:/etc/searxng
+        - ./settings.yml:/etc/searxng/settings.yml
+      environment:
+        - BASE_URL=http://searxng:8080/
+        - INSTANCE_NAME=Safe Search Engine
+        - UWSGI_WORKERS=4
+        - UWSGI_THREADS=2
+
+    # docling-serve: 
+    #   image: quay.io/docling-project/docling-serve
+    #   #image für gpu cuda vm: quay.io/docling-project/docling-serve-cu124
+    #   container_name: docling-serve
+    #   restart: always
+    #   ports:
+    #     - "5001:5001"
+    #   networks:
+    #     - xx-network
+    #   volumes:
+    #     - docling-data:/app/data
+    #   environment:
+    #     - DOCLING_SERVE_ENABLE_UI=true
+    #     # Korrigierte JSON-Syntax als YAML-String:
+    #     - DOCLING_VLM_PIPELINE_MODEL_LOCAL=${DOCLING_VLM_PIPELINE_MODEL_LOCAL}
+
+    n8n:
+      image: n8nio/n8n
+      container_name: n8n
+      restart: always
+      networks:
+        - xx-network
+      ports:
+        - "5678:5678"
+      volumes:
+        - n8n:/home/node/.n8n
+      depends_on:
+        postgres-n8n:
+          condition: service_started
+      environment:
+        - GENERIC_TIMEZONE=Europe/Berlin
+        - N8N_HOST=n8n
+        - N8N_PORT=5678
+        - N8N_EDITOR_BASE_URL=http://localhost:5678
+        - WEBHOOK_URL=http://localhost:5678
+        - N8N_RUNNERS_ENABLED=true
+        - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+        - DB_TYPE=postgresdb
+        - DB_POSTGRESDB_HOST=postgres-n8n
+        - DB_POSTGRESDB_PORT=5432
+        - N8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE=true
+        - DB_POSTGRESDB_DATABASE=n8n
+        - DB_POSTGRESDB_USER=n8n_user
+        - DB_POSTGRESDB_PASSWORD=${POSTGRES_N8N_PASSWORD:-dev_pwd}
+      env_file:
+        - .env
+
+    postgres-owui:
+       image: pgvector/pgvector:pg16
+       container_name: postgres-owui
+       restart: always
+       networks:
+         - xx-network
+       ports:
+         - "5435:5432"
+       volumes:
+         - postgres-owui-data:/var/lib/postgresql/data
+       environment:
+         - POSTGRES_DB=openwebui
+         - POSTGRES_USER=owui_user
+         - POSTGRES_PASSWORD=${POSTGRES_OWUI_PASSWORD:-dev_pwd}
+       env_file:
+         - .env
+
+    postgres-n8n:
+      image: pgvector/pgvector:pg16
+      container_name: postgres-n8n
+      restart: always
+      networks:
+        - xx-network
+      ports:
+        - "5434:5432"
+      volumes:
+        - postgres-n8n-data:/var/lib/postgresql/data
+      environment:
+        - POSTGRES_DB=n8n
+        - POSTGRES_USER=n8n_user
+        - POSTGRES_PASSWORD=${POSTGRES_N8N_PASSWORD:-dev_pwd}
+      env_file:
+        - .env

@@ -2,15 +2,14 @@ volumes:More actions
   open-webui:
   searxng:
   n8n:
-  qdrant-data:
+  postgresql-data:
   docling-data:
-  redis-data:
 
 
 
 
 networks:
-  company_ai_network:
+  open-source-ki-stack-network:
     driver: bridge
 
 version: '3'
@@ -20,7 +19,7 @@ services:
     container_name: open-webui
     restart: always
     networks:
-      - company_ai_network
+      - open-source-ki-stack-network
     ports:
       - "3000:8080"
     volumes:
@@ -74,12 +73,8 @@ services:
       #- LDAP_GROUP_ATTRIBUTES=cn,member
       #- LDAP_ADMIN_GROUP=CN=OpenWebUI-Admins,DC=yourdomain,DC=com
       # Qdrant Konfiguration
-      - VECTOR_DB=qdrant
-      - QDRANT_URI=http://qdrant:6333
-      - QDRANT_API_KEY=${QDRANT_API_KEY:-sfsfsfsfsfsfssf}
-      - QDRANT_TIMEOUT=30
-      - QDRANT_HEALTH_CHECK_URL=/collections
-      # Docling Konfiguration
+      - VECTOR_DB=pgvector
+        # Docling Konfiguration
       - DOCLING_SERVER_URL=http://docling-serve:5001
       - DOCLING_OCR_ENGINE=auto
       - DOCLING_OCR_LANG=deu
@@ -89,44 +84,13 @@ services:
       - docling-serve
       - redis
 
-  nginx:
-    image: nginx:mainline
-    container_name: nginx
-    ports:
-      - "0.0.0.0:80:80"
-      - "0.0.0.0:443:443"
-    volumes:
-      - ./conf.d:/etc/nginx/conf.d
-      - ./ssl:/etc/nginx/ssl
-    depends_on:
-      - openwebui
-      - searxng
-    restart: unless-stopped
-    networks:
-      - company_ai_network
-    environment:
-      - WEBUI_NAME=owui
-
-  qdrant:
-    image: qdrant/qdrant:latest
-    container_name: qdrant
-    restart: always
-    networks:
-      - company_ai_network
-    ports:
-      - "6333:6333"
-      - "6334:6334"
-    volumes:
-      - qdrant-data:/qdrant/storage
-    environment:
-      - QDRANT_ALLOW_CORS=true
-
+ 
   searxng:
       image: searxng/searxng
       container_name: searxng
       restart: always
       networks:
-        - company_ai_network
+        - open-source-ki-stack-network
       ports:
         - "8081:8080"  # Geändert auf 8081 um Konflikte zu vermeiden
       volumes:
@@ -143,7 +107,7 @@ services:
     container_name: docling-serve
     restart: always
     networks:
-      - company_ai_network
+      - open-source-ki-stack-network
     ports:
       - "8082:5001"
     volumes:
@@ -161,27 +125,12 @@ services:
     depends_on:
       - qdrant
 
-  redis:
-    image: redis:7-alpine
-    container_name: redis
-    restart: always
-    networks:
-      - company_ai_network
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis-data:/data
-    command: redis-server --appendonly yes --maxmemory 4gb --maxmemory-policy allkeys-lru
-    environment:
-      - REDIS_PASSWORD=${REDIS_PASSWORD:-your_secure_password}
-
-
   n8n:
     image: n8nio/n8n
     container_name: n8n
     restart: always
     networks:
-      - company_ai_network
+      - open-source-ki-stack-network
     ports:
       - "5678:5678"
     volumes:
