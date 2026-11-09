@@ -6,6 +6,8 @@
 
 # Installation
 
+SearXNG reads its secret from `SEARXNG_SECRET` in the root `.env` file; both Compose files pass it to the container. Set a unique value before starting the stack. `settings.yml` keeps a placeholder as a safe fallback.
+
 ## Option 1: Advanced stack with manuel imports
 This installation uses docling and searxng within openwebui (see docker compose testing). However there is yet no automatic imports like in option 2 and also the RAG used is the advanced setup within openwebui with docling - not with n8n like in option 2.
 ```

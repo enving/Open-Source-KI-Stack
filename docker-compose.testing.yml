@@ -97,6 +97,7 @@ services:
         - searxng:/etc/searxng
         - ./settings.yml:/etc/searxng/settings.yml
       environment:
+        - SEARXNG_SECRET=${SEARXNG_SECRET:?Set SEARXNG_SECRET in .env}
         - BASE_URL=http://searxng:8080/  # Geändert auf den Container-Namen
         - INSTANCE_NAME=Safe Search Engine
         - UWSGI_WORKERS=4

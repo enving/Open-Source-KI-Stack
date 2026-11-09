@@ -1,6 +1,6 @@
 """
 title: KI Workflow Demo
-author: Tristan Wilms
+author: Platzhalter
 version: 0.1.0
 
 This module defines a Pipe class that utilizes N8N for an Agent

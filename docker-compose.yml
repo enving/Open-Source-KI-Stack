@@ -31,6 +31,7 @@ services:
       ports:
         - "11235:11235"
       environment:
+        - SEARXNG_SECRET=${SEARXNG_SECRET:?Set SEARXNG_SECRET in .env}
         # Optional: Custom Config
         - CRAWL4AI_MAX_BROWSERS=5
         - CRAWL4AI_BROWSER_IDLE_TIMEOUT=300
