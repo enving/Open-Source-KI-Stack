@@ -6,6 +6,8 @@
 
 # Installation
 
+SearXNG reads its secret from `SEARXNG_SECRET` in the root `.env` file; both Compose files pass it to the container. Set a unique value before starting the stack. `settings.yml` keeps a placeholder as a safe fallback.
+
 ## Option 1: Advanced stack with manuel imports
 This installation uses docling and searxng within openwebui (see docker compose testing). However there is yet no automatic imports like in option 2 and also the RAG used is the advanced setup within openwebui with docling - not with n8n like in option 2.
 ```
@@ -101,3 +103,34 @@ There is also a so called "Testing" environment where reverse proxy, docling and
 docker compose -f ./docker-compose.testing.yml up -d
 ```
 Ironically enough, the testing branch was *not* tested. Use it at your own risk.
+
+## Erweiterter Stack: OpenWebUI mit ChromaDB, Firecrawl und Open Terminal
+
+`docker-compose.erweitert.yml` startet einen eigenständigen Stack mit vier Ergänzungen:
+
+- **ChromaDB** als Vektordatenbank für OpenWebUI (`VECTOR_DB=chroma`)
+- **Firecrawl** (selbst gehostet) als Web-Loader für OpenWebUI
+- **Open Terminal** als isolierte Shell für Agenten und Bots. Der Dienst hängt nur am internen Netz `terminal` und hat kein Internet
+- Alle Images sind per Digest gepinnt
+
+```bash
+cp .env.example .env          # Werte eintragen, Schlüssel z. B. mit: openssl rand -hex 32
+docker compose -f docker-compose.erweitert.yml up -d
+```
+
+OpenWebUI ist dann unter http://localhost:3000 erreichbar.
+
+**Ressourcen:** Der Stack braucht insgesamt grob 6 bis 8 GB RAM. Unter Docker Desktop muss die VM entsprechend groß gesetzt sein; mit kleinerer VM können Firecrawl oder OpenWebUI beim Start beendet werden.
+
+**Terminal-Server:** OpenWebUI übernimmt den Open-Terminal-Eintrag (`TERMINAL_SERVER_CONNECTIONS`) nur, wenn seine Datenbank noch leer ist. Bei einem bestehenden Volume den Eintrag in den Admin-Einstellungen setzen.
+
+Prüfen (aus dem OpenWebUI-Container, ohne Admin-Login):
+
+```bash
+docker compose -f docker-compose.erweitert.yml exec openwebui python3 -c "
+import urllib.request
+print('chroma', urllib.request.urlopen('http://chromadb:8000/api/v2/heartbeat', timeout=5).status)
+print('terminal', urllib.request.urlopen('http://open-terminal:8000/openapi.json', timeout=5).status)"
+```
+
+Erwartet: `chroma 200` und `terminal 200`. Schlüssel erscheinen dabei nicht in der Ausgabe.

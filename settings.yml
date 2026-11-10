@@ -39,7 +39,7 @@ server:
   base_url: http://localhost:8080/
   limiter: true
   public_instance: false
-  secret_key: "2da92c9451aaaf9bb0c40332175c934d1a3700e970ec659b7cd2b71274ef3908"
+  secret_key: "<PLATZHALTER>"
   image_proxy: true
   http_protocol_version: "1.0"
   method: "POST"
