@@ -104,24 +104,33 @@ docker compose -f ./docker-compose.testing.yml up -d
 ```
 Ironically enough, the testing branch was *not* tested. Use it at your own risk.
 
-## Open Terminal (optional, Agenten-Variante)
+## Erweiterter Stack: OpenWebUI mit ChromaDB, Firecrawl und Open Terminal
 
-Open Terminal gibt OpenWebUI eine isolierte Shell für Agenten und Bots. Der Dienst läuft nur im internen Docker-Netz (kein Internet, kein veröffentlichter Port). Der Zusatz liegt in `docker-compose.open-terminal.yml` und wird über eine Basis-Datei mit Dienst `openwebui` gelegt:
+`docker-compose.erweitert.yml` startet einen eigenständigen Stack mit vier Ergänzungen:
 
-```bash
-# Schlüssel einmalig erzeugen und in .env eintragen (.env bleibt lokal, siehe .gitignore)
-echo "OPEN_TERMINAL_API_KEY=$(openssl rand -hex 32)" >> .env
-
-docker compose -f docker-compose.dev.yml -f docker-compose.open-terminal.yml up -d
-```
-
-Der Terminal-Server wird per Umgebungsvariable `TERMINAL_SERVER_CONNECTIONS` eingetragen (URL `http://open-terminal:8000`, Bearer-Schlüssel aus `.env`). OpenWebUI übernimmt diesen Wert nur, wenn seine Datenbank noch keinen Terminal-Eintrag hat. Bei einem bestehenden Volume den Eintrag in den Admin-Einstellungen setzen oder das Volume neu anlegen.
-
-Prüfen:
+- **ChromaDB** als Vektordatenbank für OpenWebUI (`VECTOR_DB=chroma`)
+- **Firecrawl** (selbst gehostet) als Web-Loader für OpenWebUI
+- **Open Terminal** als isolierte Shell für Agenten und Bots. Der Dienst hängt nur am internen Netz `terminal` und hat kein Internet
+- Alle Images sind per Digest gepinnt
 
 ```bash
-docker compose -f docker-compose.dev.yml -f docker-compose.open-terminal.yml exec openwebui \
-  python3 -c "import urllib.request; print(urllib.request.urlopen('http://open-terminal:8000/openapi.json', timeout=5).status)"
+cp .env.example .env          # Werte eintragen, Schlüssel z. B. mit: openssl rand -hex 32
+docker compose -f docker-compose.erweitert.yml up -d
 ```
 
-Erwartet: `200`. Der Schlüssel landet dabei nicht in der Ausgabe.
+OpenWebUI ist dann unter http://localhost:3000 erreichbar.
+
+**Ressourcen:** Der Stack braucht insgesamt grob 6 bis 8 GB RAM. Unter Docker Desktop muss die VM entsprechend groß gesetzt sein; mit kleinerer VM können Firecrawl oder OpenWebUI beim Start beendet werden.
+
+**Terminal-Server:** OpenWebUI übernimmt den Open-Terminal-Eintrag (`TERMINAL_SERVER_CONNECTIONS`) nur, wenn seine Datenbank noch leer ist. Bei einem bestehenden Volume den Eintrag in den Admin-Einstellungen setzen.
+
+Prüfen (aus dem OpenWebUI-Container, ohne Admin-Login):
+
+```bash
+docker compose -f docker-compose.erweitert.yml exec openwebui python3 -c "
+import urllib.request
+print('chroma', urllib.request.urlopen('http://chromadb:8000/api/v2/heartbeat', timeout=5).status)
+print('terminal', urllib.request.urlopen('http://open-terminal:8000/openapi.json', timeout=5).status)"
+```
+
+Erwartet: `chroma 200` und `terminal 200`. Schlüssel erscheinen dabei nicht in der Ausgabe.

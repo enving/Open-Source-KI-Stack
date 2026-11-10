@@ -1,0 +1,186 @@
+# Erweiterter Stack: OpenWebUI + ChromaDB (Vektoren) + Firecrawl (Web-Scraping) + Open Terminal.
+# Eigenständig startbar, ohne Basis-Datei:
+#
+#   cp .env.example .env     # Werte eintragen, siehe Kommentare dort
+#   docker compose -f docker-compose.erweitert.yml up -d
+#
+# Alle Images sind per Digest gepinnt, damit der Stack reproduzierbar bleibt.
+# Aktualisieren heißt: Digest bewusst neu setzen und das hier committen.
+#
+# Netze:
+#   backend   Internet-Zugang. Firecrawl muss Seiten laden, OpenWebUI braucht Modell-APIs.
+#   terminal  kein Internet. Nur OpenWebUI und Open Terminal hängen daran.
+#
+# Hinweis: OpenWebUI übernimmt TERMINAL_SERVER_CONNECTIONS nur bei leerer Datenbank.
+# Bei einem bestehenden Volume den Terminal-Eintrag in den Admin-Einstellungen setzen.
+
+name: kobe-erweitert
+
+services:
+  # --- Oberfläche -------------------------------------------------------------
+  openwebui:
+    image: ghcr.io/open-webui/open-webui@sha256:8b432fe0a65b91116afc7961365c6cca5379cc923171386a96691f3471f3cae9
+    command: ["bash", "start.sh"]
+    ports:
+      - "127.0.0.1:3000:8080"
+    environment:
+      WEBUI_SECRET_KEY: ${WEBUI_SECRET_KEY:?WEBUI_SECRET_KEY in .env setzen}
+      ANONYMIZED_TELEMETRY: "false"
+      DO_NOT_TRACK: "true"
+      SCARF_NO_ANALYTICS: "true"
+      # ChromaDB als Vektordatenbank
+      VECTOR_DB: chroma
+      CHROMA_HTTP_HOST: chromadb
+      CHROMA_HTTP_PORT: "8000"
+      CHROMA_HTTP_SSL: "false"
+      # Firecrawl als Web-Loader (selbst gehostet, Authentifizierung ist aus)
+      FIRECRAWL_API_BASE_URL: http://firecrawl-api:3002
+      FIRECRAWL_API_KEY: fc-selbstgehostet
+      # Open Terminal als Terminal-Server (Schlüssel aus .env)
+      TERMINAL_SERVER_CONNECTIONS: '[{"id":"open-terminal","name":"Open Terminal","enabled":true,"url":"http://open-terminal:8000","path":"/openapi.json","key":"${OPEN_TERMINAL_API_KEY:?OPEN_TERMINAL_API_KEY in .env setzen}","auth_type":"bearer","forward_cookies":false}]'
+    volumes:
+      - owui-data:/app/backend/data
+    depends_on:
+      - chromadb
+      - firecrawl-api
+      - open-terminal
+    networks:
+      - backend
+      - terminal
+    restart: unless-stopped
+
+  # --- Terminal für Agenten (kein Internet) -----------------------------------
+  open-terminal:
+    image: ghcr.io/open-webui/open-terminal@sha256:1c5f9dbfb84fa4ad1c057f63b4bf78145ea08f0286005bfaeb9e01929f6d0da3
+    command: ["run", "--host", "0.0.0.0", "--port", "8000"]
+    environment:
+      OPEN_TERMINAL_API_KEY: ${OPEN_TERMINAL_API_KEY:?OPEN_TERMINAL_API_KEY in .env setzen}
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 2g
+    pids_limit: 512
+    networks:
+      - terminal
+    restart: unless-stopped
+
+  # --- Vektordatenbank --------------------------------------------------------
+  chromadb:
+    image: chromadb/chroma@sha256:1e0b73a187a28757c572acba508c46f48c9e8b0acaf5c20e6d95cdedce1acdf6
+    volumes:
+      - chroma-data:/data
+    mem_limit: 1g
+    networks:
+      - backend
+    restart: unless-stopped
+
+  # --- Firecrawl (Web-Scraping) -----------------------------------------------
+  firecrawl-api:
+    image: ghcr.io/firecrawl/firecrawl@sha256:e0047349f55e8d13937abcba0e9281b835346e0b23c40e67de0c505e6feab484
+    command: ["node", "dist/src/harness.js", "--start-docker"]
+    environment:
+      HOST: "0.0.0.0"
+      PORT: "3002"
+      ENV: local
+      REDIS_URL: redis://firecrawl-redis:6379
+      REDIS_RATE_LIMIT_URL: redis://firecrawl-redis:6379
+      PLAYWRIGHT_MICROSERVICE_URL: http://firecrawl-playwright:3000/scrape
+      POSTGRES_HOST: firecrawl-nuq-postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${FIRECRAWL_DB_PASSWORD:?FIRECRAWL_DB_PASSWORD in .env setzen}
+      POSTGRES_DB: postgres
+      NUQ_RABBITMQ_URL: amqp://${RABBITMQ_USER:?RABBITMQ_USER in .env setzen}:${RABBITMQ_PASSWORD:?RABBITMQ_PASSWORD in .env setzen}@firecrawl-rabbitmq:5672
+      USE_DB_AUTHENTICATION: "false"
+      BULL_AUTH_KEY: ${BULL_AUTH_KEY:?BULL_AUTH_KEY in .env setzen}
+      NUM_WORKERS_PER_QUEUE: "8"
+      CRAWL_CONCURRENT_REQUESTS: "10"
+      MAX_CONCURRENT_JOBS: "5"
+      BROWSER_POOL_SIZE: "5"
+      LOGGING_LEVEL: INFO
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
+    depends_on:
+      firecrawl-redis:
+        condition: service_started
+      firecrawl-playwright:
+        condition: service_started
+      firecrawl-rabbitmq:
+        condition: service_healthy
+      firecrawl-nuq-postgres:
+        condition: service_healthy
+    mem_limit: 3g
+    networks:
+      - backend
+    restart: unless-stopped
+
+  firecrawl-playwright:
+    image: ghcr.io/firecrawl/playwright-service@sha256:df1a393ce8bfc3801570a826a9b0dcc400ae48789adb4a0ad9d6cbf0229b059b
+    environment:
+      PORT: "3000"
+      MAX_CONCURRENT_PAGES: "5"
+    shm_size: 1gb
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    tmpfs:
+      - /tmp/.cache:noexec,nosuid,size=1g
+    mem_limit: 2g
+    networks:
+      - backend
+    restart: unless-stopped
+
+  firecrawl-redis:
+    image: redis@sha256:3811787313eba226a2ef38658c6ccb91cd5e110edc89c37767de373120a0e5a0
+    command: redis-server --bind 0.0.0.0
+    networks:
+      - backend
+    restart: unless-stopped
+
+  firecrawl-rabbitmq:
+    image: rabbitmq@sha256:e582c0bc7766f3342496d8485efb5a1df782b5ce3886ad017e2eaae442311f69
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:?RABBITMQ_USER in .env setzen}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:?RABBITMQ_PASSWORD in .env setzen}
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "check_running"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - backend
+    restart: unless-stopped
+
+  firecrawl-nuq-postgres:
+    image: ghcr.io/firecrawl/nuq-postgres@sha256:9b638af78d99873bc0ba2b57c9cbcd01df6ce96efeaa72d36cfbe0f76521e8fc
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${FIRECRAWL_DB_PASSWORD:?FIRECRAWL_DB_PASSWORD in .env setzen}
+      POSTGRES_DB: postgres
+    volumes:
+      - firecrawl-pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    networks:
+      - backend
+    restart: unless-stopped
+
+networks:
+  backend:
+    driver: bridge
+  terminal:
+    internal: true
+
+volumes:
+  owui-data:
+  chroma-data:
+  firecrawl-pg-data:
