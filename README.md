@@ -103,3 +103,25 @@ There is also a so called "Testing" environment where reverse proxy, docling and
 docker compose -f ./docker-compose.testing.yml up -d
 ```
 Ironically enough, the testing branch was *not* tested. Use it at your own risk.
+
+## Open Terminal (optional, Agenten-Variante)
+
+Open Terminal gibt OpenWebUI eine isolierte Shell für Agenten und Bots. Der Dienst läuft nur im internen Docker-Netz (kein Internet, kein veröffentlichter Port). Der Zusatz liegt in `docker-compose.open-terminal.yml` und wird über eine Basis-Datei mit Dienst `openwebui` gelegt:
+
+```bash
+# Schlüssel einmalig erzeugen und in .env eintragen (.env bleibt lokal, siehe .gitignore)
+echo "OPEN_TERMINAL_API_KEY=$(openssl rand -hex 32)" >> .env
+
+docker compose -f docker-compose.dev.yml -f docker-compose.open-terminal.yml up -d
+```
+
+Der Terminal-Server wird per Umgebungsvariable `TERMINAL_SERVER_CONNECTIONS` eingetragen (URL `http://open-terminal:8000`, Bearer-Schlüssel aus `.env`). OpenWebUI übernimmt diesen Wert nur, wenn seine Datenbank noch keinen Terminal-Eintrag hat. Bei einem bestehenden Volume den Eintrag in den Admin-Einstellungen setzen oder das Volume neu anlegen.
+
+Prüfen:
+
+```bash
+docker compose -f docker-compose.dev.yml -f docker-compose.open-terminal.yml exec openwebui \
+  python3 -c "import urllib.request; print(urllib.request.urlopen('http://open-terminal:8000/openapi.json', timeout=5).status)"
+```
+
+Erwartet: `200`. Der Schlüssel landet dabei nicht in der Ausgabe.
