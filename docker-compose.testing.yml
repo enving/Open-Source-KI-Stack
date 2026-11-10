@@ -1,4 +1,4 @@
-volumes:More actions
+volumes:
   open-webui:
   searxng:
   n8n:
@@ -80,9 +80,7 @@ services:
       - DOCLING_OCR_LANG=deu
       - DOCLING_DO_PICTURE_DESCRIPTION=true
     depends_on:
-      - qdrant
       - docling-serve
-      - redis
 
  
   searxng:
@@ -123,9 +121,6 @@ services:
       - QDRANT_URL=http://qdrant:6333
       - QDRANT_API_KEY=${QDRANT_API_KEY:-sfsfsfsfsfsfssf}
       - QDRANT_COLLECTION_NAME=docling
-    depends_on:
-      - qdrant
-
   n8n:
     image: n8nio/n8n
     container_name: n8n
