@@ -1,4 +1,4 @@
-# Erweiterter Stack: OpenWebUI + ChromaDB (Vektoren) + Firecrawl (Web-Scraping) + Open Terminal.
+# Erweiterter Stack: OpenWebUI + ChromaDB (Vektoren) + n8n (Workflows) + Firecrawl (Web-Scraping) + Open Terminal.
 # Eigenständig startbar, ohne Basis-Datei:
 #
 #   cp .env.example .env     # Werte eintragen, siehe Kommentare dort
@@ -47,6 +47,32 @@ services:
     networks:
       - backend
       - terminal
+    restart: unless-stopped
+
+  # --- Workflows --------------------------------------------------------------
+  # Offizielles Image (docker.n8n.io, Version 2.41.5, amd64 und arm64), SQLite im Volume.
+  # Für mehrere gleichzeitige Nutzer oder viele Ausführungen später auf Postgres umstellen.
+  # N8N_ENCRYPTION_KEY aus .env: gespeicherte Zugangsdaten bleiben nach Volume-Umzug lesbar.
+  # Hinter Tailscale Serve (https) N8N_EDITOR_BASE_URL und WEBHOOK_URL in .env auf die
+  # Serve-Adresse setzen, sonst zeigen Webhook-Adressen auf localhost.
+  n8n:
+    image: docker.n8n.io/n8nio/n8n@sha256:6f532d3b819cfe66c6a13c5375228f312c53df1abaa11a377eb8c3d3f105c363
+    ports:
+      - "127.0.0.1:5678:5678"
+    environment:
+      GENERIC_TIMEZONE: ${GENERIC_TIMEZONE:-Europe/Berlin}
+      TZ: ${GENERIC_TIMEZONE:-Europe/Berlin}
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:?N8N_ENCRYPTION_KEY in .env setzen}
+      N8N_EDITOR_BASE_URL: ${N8N_EDITOR_BASE_URL:-http://localhost:5678}
+      WEBHOOK_URL: ${N8N_WEBHOOK_URL:-http://localhost:5678}
+      N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: "true"
+      N8N_DIAGNOSTICS_ENABLED: "false"
+      N8N_VERSION_NOTIFICATIONS_ENABLED: "false"
+    volumes:
+      - n8n-data:/home/node/.n8n
+    mem_limit: 1g
+    networks:
+      - backend
     restart: unless-stopped
 
   # --- Terminal für Agenten (kein Internet) -----------------------------------
@@ -182,5 +208,6 @@ networks:
 
 volumes:
   owui-data:
+  n8n-data:
   chroma-data:
   firecrawl-pg-data:
