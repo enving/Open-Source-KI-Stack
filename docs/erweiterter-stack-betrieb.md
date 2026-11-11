@@ -18,7 +18,7 @@ Eine Vorlage liegt als `.env.example`. Die echte Datei gehört nicht ins Repo un
 
 Die API von Firecrawl wird vom Kernel mit Exit 137 beendet, wenn das Speicherlimit zu klein ist oder zu viele Worker laufen. Der Container startet dann in einer Neustartschleife.
 
-Mit 8 Workern und 3 GB Limit trat das in der Testinstallation auf. Stabil lief es mit einem Worker und 5 GB. Die Docker-VM braucht dafür mindestens 8 GB, besser 10 GB. Die Werte sind als Vorschlag in einem offenen PR dokumentiert; vor einem Merge prüfen, ob sie zur eigenen Hardware passen.
+Mit 8 Workern und 3 GB Limit trat das in der Testinstallation auf. Stabil lief es mit einem Worker und 5 GB. Die Docker-VM braucht dafür mindestens 8 GB, besser 10 GB. Die Werte stammen aus dieser Messung; vor dem Übernehmen prüfen, ob sie zur eigenen Hardware passen.
 
 ## 3. Open WebUI aktualisieren
 
@@ -68,4 +68,3 @@ Aus Tests sind Fragen an das öffentliche Open-WebUI-Repo entstanden. Vorher suc
 
 - Entscheidung, ob Open Terminal für mehrere Benutzer freigegeben wird und unter welchem Benutzerkonto.
 - Umgang mit der Sprache der Oberfläche: Bei einem unvollständigen Sprachpaket erscheinen Übersetzungsschlüssel statt Text. Abhilfe ist die Oberflächensprache Englisch, bis ein vollständiges Paket da ist.
-- Merge der Änderungen für Firecrawl-Speicher und n8n.
