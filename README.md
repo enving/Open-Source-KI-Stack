@@ -120,7 +120,7 @@ docker compose -f docker-compose.erweitert.yml up -d
 
 OpenWebUI ist dann unter http://localhost:3000 erreichbar.
 
-**Ressourcen:** Der Stack braucht insgesamt grob 6 bis 8 GB RAM. Unter Docker Desktop muss die VM entsprechend groß gesetzt sein; mit kleinerer VM können Firecrawl oder OpenWebUI beim Start beendet werden.
+**Ressourcen:** Der Stack braucht insgesamt grob 6 bis 8 GB RAM. Firecrawl braucht beim Start kurz rund 3,6 GB; das Speicherlimit der API liegt deshalb bei 5 GB (`NUM_WORKERS_PER_QUEUE` 1). Die VM muss entsprechend groß sein, mindestens 8 GB, besser 10 GB (Docker Desktop oder Colima). Mit kleinerer VM können Firecrawl oder OpenWebUI beim Start beendet werden.
 
 **Terminal-Server:** OpenWebUI übernimmt den Open-Terminal-Eintrag (`TERMINAL_SERVER_CONNECTIONS`) nur, wenn seine Datenbank noch leer ist. Bei einem bestehenden Volume den Eintrag in den Admin-Einstellungen setzen.
 

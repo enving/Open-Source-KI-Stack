@@ -119,7 +119,8 @@ services:
       NUQ_RABBITMQ_URL: amqp://${RABBITMQ_USER:?RABBITMQ_USER in .env setzen}:${RABBITMQ_PASSWORD:?RABBITMQ_PASSWORD in .env setzen}@firecrawl-rabbitmq:5672
       USE_DB_AUTHENTICATION: "false"
       BULL_AUTH_KEY: ${BULL_AUTH_KEY:?BULL_AUTH_KEY in .env setzen}
-      NUM_WORKERS_PER_QUEUE: "8"
+      # 1 statt 8: mit 8 Workern beendet der Kernel die API beim Start (OOM, Exit 137).
+      NUM_WORKERS_PER_QUEUE: "1"
       CRAWL_CONCURRENT_REQUESTS: "10"
       MAX_CONCURRENT_JOBS: "5"
       BROWSER_POOL_SIZE: "5"
@@ -139,7 +140,8 @@ services:
         condition: service_healthy
       firecrawl-nuq-postgres:
         condition: service_healthy
-    mem_limit: 3g
+    # 5 GB: der Start braucht kurz rund 3,6 GB (Messung 10.11.2026).
+    mem_limit: 5g
     networks:
       - backend
     restart: unless-stopped
