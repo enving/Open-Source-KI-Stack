@@ -64,7 +64,15 @@ Aus Tests sind Fragen an das öffentliche Open-WebUI-Repo entstanden. Vorher suc
 - #34076 (Übersicht ausstehender Tool-Freigaben über alle Chats): offen.
 - #34077 (Ordner pro Channel für Mitglieder und Bots): offen.
 
-## 7. Offene Punkte
+## 7. Autostart nach Absturz und Open Terminal im Container
+
+- **Colima startet nach hartem Absturz nicht**, wenn eine verwaiste Sperre `~/.colima/_lima/_disks/colima/in_use_by` liegt (Log: `failed to run attach disk "colima", in use by instance "colima"`). Der brew-Dienst gibt dann auf. Abhilfe: eigener LaunchAgent, der die Sperre nur bei fehlendem `limactl hostagent` entfernt und dann `colima start -f` ausführt, mit `KeepAlive`. Das Skript und die Plist liegen lokal (`~/.local/bin/colima-start-sicher`, `~/Library/LaunchAgents/de.ki-stack.colima.plist`), nicht im Repo; `brew services start colima` legt den alten Dienst wieder an.
+- **Mac-Dienst als LaunchDaemon:** `scripts/mac-open-terminal-installieren.sh` (mit `sudo`) richtet Open Terminal als `kisandbox` ein, Start beim Booten. Der Daemon hat keine Benutzeroberfläche, daher keine Bildschirmabfragen. Die Freigabe für Bildschirmaufnahme lässt sich nicht per Skript erteilen (TCC, SIP).
+- **Linux-Container als Standardumgebung:** `scripts/terminal-container-einrichten.sh` installiert im Volume `terminal-home` Node (24), `bpmn-cli` (0.10.0) und Codex (0.167.1). Danach einmal `docker exec -it <container> codex login --device-auth`. Die Anmeldung liegt in `/home/user/.codex` im Volume.
+- **Dateien zeigen:** Modelle erfinden gern Links auf Dateien im Terminal (z. B. `…ts.net:10000/home/user/x.bpmn`, ergibt 404, weil Port 10000 nur Open WebUI ausliefert). Open Terminal hat dafür `display_file` (`/files/display`). Für Workspace-Modelle mit Terminal in den System-Prompt: „Dateien, die ich ansehen soll, öffnest du mit display_file. Erfinde keine Links auf Dateien im Terminal. Bilder (z. B. PNG aus `bpmn render`) zeigst du ebenfalls mit display_file." (nicht getestet)
+- **Agenten und Workspace-Modelle:** Codex erscheint im Chat-Modellwähler, nicht als Basismodell im Workspace-Editor, und ein Chat-Modell kann nicht an Codex delegieren (Open-Terminal-API: `/execute`, `/files/*`, `/browser/*`, `/desktop/*`). Ein ChatGPT-Abo in einem geteilten Container ist für mehrere Benutzer vermutlich nicht erlaubt (nicht geprüft).
+
+## 8. Offene Punkte
 
 - Entscheidung, ob Open Terminal für mehrere Benutzer freigegeben wird und unter welchem Benutzerkonto.
 - Umgang mit der Sprache der Oberfläche: Bei einem unvollständigen Sprachpaket erscheinen Übersetzungsschlüssel statt Text. Abhilfe ist die Oberflächensprache Englisch, bis ein vollständiges Paket da ist.
