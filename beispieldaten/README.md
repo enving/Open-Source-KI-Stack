@@ -4,7 +4,8 @@ Ein wiederholbarer Grundstock **erfundener** Daten, um ein KI-Betriebssystem in 
 (zum Beispiel dem eigenen macOS-Benutzer, den Open Terminal bedient, siehe `../docs/erweiterter-stack-betrieb.md`). Dazu der
 BPMN-Befehl `bpmn`, damit Prozesse für Menschen und Firmen-Agenten modelliert werden können.
 
-Die Daten liegen **nicht** im Repo. Das Repo hält nur das, was sie wieder herstellt.
+Die Daten liegen **nicht** im Repo. Das Repo hält nur das, was sie wieder herstellt. Installierte Werkzeuge (hier `bpmn`) stehen im
+[Installationsregister](../docs/installationen.md).
 
 | Datei | Zweck |
 |---|---|
