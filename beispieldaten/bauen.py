@@ -147,6 +147,8 @@ def sinabis_mails(mails, manifest_pfad, ziel, anzahl, manifest):
 def sinabis_ics(ics, ziel, anzahl_unternehmen, anzahl_team, manifest):
     gross, klein = [], []
     for p in sorted(Path(ics).glob("*.ics")):
+        if p.name.startswith("."):  # versteckte Hüllen (z. B. macOS "._x.ics") sind keine Kalendereinträge
+            continue
         text = p.read_text(encoding="utf-8", errors="replace")
         (gross if len(re.findall(r"^ATTENDEE", text, re.M)) >= 6 else klein).append(p)
     rng = random.Random(SEED)

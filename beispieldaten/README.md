@@ -93,3 +93,19 @@ Sonnet 5.5, 11.11.2026). Die README trennt den Kontext je Konversation, aber im 
 laut Wiki nur das Konto `admin`; Worktrees pro Agent, Sperren oder einen Merge-Schritt fanden wir nicht (Stichwortsuche, nicht
 ausgeführt). Offene Fehler zu gleichzeitigem Betrieb: #4359 („database is locked“), #3832 (verlorene Nachrichten). Das
 Rust-Backend wurde nicht geprüft.
+
+## Im Open-Terminal-Container
+
+Der Container `open-terminal` (siehe `../docker-compose.erweitert.yml`) hat Node 22, aber nicht 24; `einrichten.sh` legt Node 24
+deshalb in das Home des Containers. Das Home ist ein benannter Speicher (`terminal-home`), Setup und Daten überleben also ein
+Neuanlegen des Containers. Skripte hineinbringen (der Container sieht das Repo nicht), dann ausführen:
+
+```bash
+git archive HEAD beispieldaten | docker exec -i <container> tar -xf - -C /tmp --strip-components=0   # liefert /tmp/beispieldaten
+docker exec <container> bash -c '/tmp/beispieldaten/einrichten.sh --ziel $HOME/beispieldaten'          # nur Tidewell
+```
+
+Mit Sinabis zusätzlich die Quellordner genauso nach `/tmp` kopieren und per `--mails`, `--mails-manifest`, `--ics` angeben; auf
+macOS dabei `COPYFILE_DISABLE=1 tar …` benutzen, sonst entstehen versteckte `._*`-Dateien (`bauen.py` ignoriert sie bei den
+Kalendern). Danach die kopierten Quellen und `/tmp/beispieldaten` wieder löschen. Der Aufbau war im Test Datei für Datei
+identisch zu dem auf einem Mac-Benutzer.
