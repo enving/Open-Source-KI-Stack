@@ -1,4 +1,20 @@
-# Beispieldaten und BPMN-Werkzeug
+# Optionales Setup: Beispieldaten und BPMN-Werkzeug
+
+**Optional.** Der Stack läuft ohne dies. Es ist zum Ausprobieren und für wiederholbare Tests gedacht, in einem Aufruf:
+
+```bash
+./einrichten.sh --ziel <ordner>        # kleiner Einstieg: nur Tidewell, kobench wird selbst geholt, bpmn installiert
+```
+
+Mit den Sinabis-Mails und -Terminen zusätzlich (große Quelle, siehe unten):
+
+```bash
+./einrichten.sh --ziel <ordner> --mails <ordner-eml> --mails-manifest <manifest.json> --ics <ordner-ics>
+```
+
+`einrichten.sh` führt die vier Schritte aus dem Abschnitt „Ablauf“ nacheinander aus, ändert nichts im Repo und bricht ab, wenn das
+Ziel nicht leer ist. Optionen: `--kobench <ordner>` (vorhandenes Repo statt Klon des festen Stands), `--praefix <ordner>` (wohin
+`bpmn` kommt, Standard `~/.local`), `--ohne-bpmn`. Danach: `export PATH="<praefix>/bin:$PATH"`.
 
 Ein wiederholbarer Grundstock **erfundener** Daten, um ein KI-Betriebssystem in einer abgeschotteten Umgebung auszuprobieren
 (zum Beispiel dem eigenen macOS-Benutzer, den Open Terminal bedient, siehe `../docs/erweiterter-stack-betrieb.md`). Dazu der
@@ -9,6 +25,7 @@ Die Daten liegen **nicht** im Repo. Das Repo hält nur das, was sie wieder herst
 
 | Datei | Zweck |
 |---|---|
+| `einrichten.sh` | Optionales Setup: führt alle folgenden Schritte in einem Aufruf aus |
 | `bauen.py` | Baut die Daten aus zwei öffentlichen Quellen, getrennt in `unternehmen/` und `team/` (nur Standardbibliothek) |
 | `prozesse.sh` | Baut zwei BPMN-Beispielprozesse (Erstattung, Störung) mit dem `bpmn`-Befehl |
 | `git-einrichten.sh` | Macht aus den gebauten Daten ein Git-Repo (Standard) und legt `ARBEITSWEISE.md` dazu |
@@ -25,15 +42,15 @@ Die Daten liegen **nicht** im Repo. Das Repo hält nur das, was sie wieder herst
 
 Nicht verwendet wird alles, was echte oder fremde Firmeninhalte enthalten kann (zum Beispiel Simulator-Abzüge).
 
-## Ablauf
+## Ablauf (die einzelnen Schritte, falls man sie getrennt braucht)
 
 ```bash
 # 1. bpmn-Befehl (Node.js 24 oder neuer; unter dem Benutzer, der ihn nutzen soll)
 ./installieren-bpmn.sh                       # danach: export PATH="$HOME/.local/bin:$PATH"
 
 # 2. Daten bauen (Ordner muss leer oder neu sein)
-python3 -I bauen.py --kobench <kobench> --mails <ordner-eml> --mails-manifest <manifest.json> \
-                    --ics <ordner-ics> --ziel <ziel>
+python3 -I bauen.py --kobench <kobench> --ziel <ziel> \
+                    [--mails <ordner-eml> --mails-manifest <manifest.json> --ics <ordner-ics>]   # Sinabis ist optional
 
 # 3. Prozesse dazubauen
 ./prozesse.sh <ziel>
@@ -42,7 +59,7 @@ python3 -I bauen.py --kobench <kobench> --mails <ordner-eml> --mails-manifest <m
 ./git-einrichten.sh <ziel>
 ```
 
-Standardumfang (änderbar über Optionen): 150 Rundmails und Systemmails sowie 20 große Termine im Unternehmen; 150 interne
+Standardumfang mit Sinabis (änderbar über Optionen; ohne Sinabis nur die 42 Tidewell-Dokumente): 150 Rundmails und Systemmails sowie 20 große Termine im Unternehmen; 150 interne
 Mails, 100 Kundenmails und 40 kleine Termine im Team; 42 Tidewell-Dokumente verteilt nach Rechtekreis; rund 8 MB.
 
 Läuft das Ziel unter einem anderen Benutzer (der die Quellen nicht lesen darf), baut man in einem neutralen Ordner wie `/tmp`

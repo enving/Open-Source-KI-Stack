@@ -31,7 +31,8 @@ Container-Images werden nicht ins Register geschrieben, sondern per Digest in de
 ## 3. Daten bleiben draußen, Bauskripte kommen herein
 
 Beispiel- und Testdaten liegen nicht im Repo. Das Repo enthält das Skript, das sie aus öffentlichen Quellen wiederherstellt
-(`beispieldaten/`), samt Quellen und Lizenzen. Gleiche Eingabe soll dieselbe Ausgabe ergeben (fester Seed).
+(`beispieldaten/`), samt Quellen und Lizenzen. Alles Ausprobierende bleibt **optionales Setup** mit einem Einstiegspunkt
+(`beispieldaten/einrichten.sh`); der Stack selbst darf davon nicht abhängen. Gleiche Eingabe soll dieselbe Ausgabe ergeben (fester Seed).
 
 ## 4. Doku
 

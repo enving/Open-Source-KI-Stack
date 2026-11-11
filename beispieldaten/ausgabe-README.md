@@ -27,7 +27,7 @@ folgt sie der Art der Nachricht: automatische und Rundmails gehen ans Unternehme
 
 - **Tidewell Software** (kobench, MIT): CRM-Konten, Slack-Kanäle, Jira-Tickets, Wiki-Seiten, SharePoint-Dateien, englisch.
   Passende Fragen: `pruefung/tidewell-fragen.yaml`, Rechte: `rechte-tidewell.yaml`.
-- **Sinabis Green Energy** (Hugging Face `sinabis-group/sinabis-10m-synthetic-emails`, CC-BY-4.0): E-Mails (`.eml`, Kopf
+- **Sinabis Green Energy** (nur vorhanden, wenn beim Bauen angegeben; sonst fehlen die Ordner `sinabis/`) (Hugging Face `sinabis-group/sinabis-10m-synthetic-emails`, CC-BY-4.0): E-Mails (`.eml`, Kopf
   `X-Synthetic-Data`) und Kalendereinträge (`.ics`), englisch. Keine Verknüpfung zu Tidewell, keine Musterantworten; dient als
   realistisches Rauschen und für eigene Fragen.
 

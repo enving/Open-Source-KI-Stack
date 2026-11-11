@@ -9,8 +9,10 @@ Nur Standardbibliothek. Die Daten selbst liegen NICHT im Repo; dieses Skript bau
 
 Aufruf (alle Pfade sind Argumente, nichts ist fest verdrahtet):
 
-    python3 -I bauen.py --kobench <kobench-ordner> --mails <ordner-mit-eml> --mails-manifest <manifest.json> \
-                        --ics <ordner-mit-ics> --ziel <ausgabeordner>
+    python3 -I bauen.py --kobench <kobench-ordner> --ziel <ausgabeordner> \
+                        [--mails <ordner-mit-eml> --mails-manifest <manifest.json> --ics <ordner-mit-ics>]
+
+Ohne die drei Sinabis-Angaben entsteht nur der Tidewell-Teil (kleiner Einstieg ohne große Downloads).
 
 Die Auswahl ist deterministisch (Seed 42): gleiche Eingabe, gleiche Ausgabe. Die Aufteilung steht in README.md.
 """
@@ -163,9 +165,9 @@ def sinabis_ics(ics, ziel, anzahl_unternehmen, anzahl_team, manifest):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--kobench", required=True, help="Ordner des kobench-Repos")
-    ap.add_argument("--mails", required=True, help="Ordner mit den .eml-Dateien (Sinabis)")
-    ap.add_argument("--mails-manifest", required=True, help="manifest.json des Mail-Ausschnitts (Liste 'dateien' mit 'datei')")
-    ap.add_argument("--ics", required=True, help="Ordner mit .ics-Dateien (Sinabis)")
+    ap.add_argument("--mails", help="Ordner mit den .eml-Dateien (Sinabis); ohne --mails, --mails-manifest und --ics nur Tidewell")
+    ap.add_argument("--mails-manifest", help="manifest.json des Mail-Ausschnitts (Liste 'dateien' mit 'datei')")
+    ap.add_argument("--ics", help="Ordner mit .ics-Dateien (Sinabis)")
     ap.add_argument("--ziel", required=True, help="Ausgabeordner (wird neu angelegt; ein vorhandener wird nicht überschrieben)")
     ap.add_argument("--mails-unternehmen", type=int, default=150)
     ap.add_argument("--mails-team-intern", type=int, default=150)
@@ -173,6 +175,9 @@ def main():
     ap.add_argument("--ics-unternehmen", type=int, default=20)
     ap.add_argument("--ics-team", type=int, default=40)
     a = ap.parse_args()
+    sinabis = [a.mails, a.mails_manifest, a.ics]
+    if any(sinabis) and not all(sinabis):
+        sys.exit("Sinabis braucht alle drei Angaben: --mails, --mails-manifest und --ics (oder keine).")
 
     ziel = Path(a.ziel)
     if ziel.exists() and any(ziel.iterdir()):
@@ -180,9 +185,11 @@ def main():
     ziel.mkdir(parents=True, exist_ok=True)
     manifest = []
     t = tidewell(a.kobench, ziel, manifest)
-    mails = sinabis_mails(a.mails, a.mails_manifest, ziel,
-                          {"unternehmen": a.mails_unternehmen, "team-intern": a.mails_team_intern, "team-extern": a.mails_team_kunden}, manifest)
-    ics = sinabis_ics(a.ics, ziel, a.ics_unternehmen, a.ics_team, manifest)
+    mails = ics = "übersprungen (keine Sinabis-Quelle angegeben)"
+    if all(sinabis):
+        mails = sinabis_mails(a.mails, a.mails_manifest, ziel,
+                              {"unternehmen": a.mails_unternehmen, "team-intern": a.mails_team_intern, "team-extern": a.mails_team_kunden}, manifest)
+        ics = sinabis_ics(a.ics, ziel, a.ics_unternehmen, a.ics_team, manifest)
     manifest.sort(key=lambda e: e["datei"])
     schreibe(ziel / "manifest.json", json.dumps({"seed": SEED, "dateien": manifest}, indent=1, ensure_ascii=False) + "\n")
     vorlage = Path(__file__).with_name("ausgabe-README.md")
