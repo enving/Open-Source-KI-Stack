@@ -29,6 +29,7 @@ Die Daten liegen **nicht** im Repo. Das Repo hält nur das, was sie wieder herst
 | `bauen.py` | Baut die Daten aus zwei öffentlichen Quellen, getrennt in `unternehmen/` und `team/` (nur Standardbibliothek) |
 | `prozesse.sh` | Baut zwei BPMN-Beispielprozesse (Erstattung, Störung) mit dem `bpmn`-Befehl |
 | `git-einrichten.sh` | Macht aus den gebauten Daten ein Git-Repo (Standard) und legt `ARBEITSWEISE.md` dazu |
+| `installieren-node.sh` | Installiert Node.js (LTS 24, feste Version, Prüfsumme) ohne Administratorrechte; nötig für `bpmn`, vor allem in bereinigten Dienstumgebungen ohne Homebrew |
 | `installieren-bpmn.sh` | Installiert den `bpmn`-Befehl in fester Version ohne Administratorrechte |
 | `ausgabe-README.md`, `ausgabe-ARBEITSWEISE.md` | Werden in die gebauten Daten kopiert (`README.md`, `ARBEITSWEISE.md`); beschreiben dort Aufbau und gleichzeitiges Arbeiten |
 
@@ -45,7 +46,8 @@ Nicht verwendet wird alles, was echte oder fremde Firmeninhalte enthalten kann (
 ## Ablauf (die einzelnen Schritte, falls man sie getrennt braucht)
 
 ```bash
-# 1. bpmn-Befehl (Node.js 24 oder neuer; unter dem Benutzer, der ihn nutzen soll)
+# 1. Node.js (nur falls nicht vorhanden) und bpmn-Befehl, unter dem Benutzer, der sie nutzen soll
+./installieren-node.sh
 ./installieren-bpmn.sh                       # danach: export PATH="$HOME/.local/bin:$PATH"
 
 # 2. Daten bauen (Ordner muss leer oder neu sein)

@@ -43,3 +43,7 @@ Dieser Ordner ist ein Git-Repo. Wie mehrere Personen und Agenten sich nicht übe
 `bpmn validate <datei>`, `bpmn render <datei> -o bild.png`. Konvention: Bahn **Mensch** (Aufgabe „userTask“) gegen Bahn
 **Firmen-Agent** (Aufgabe „serviceTask“). Der Agent erledigt nicht alles: Wo ein Mensch entscheidet oder die Regel geändert
 werden sollte, steht ein Menschen-Schritt, und der Agent berät dort (siehe `doc` am Schritt).
+
+Neuen Prozess anlegen: erst `bpmn guide`, dann die Beispiele in `prozesse/` ansehen (`bpmn show`). Laufen Zweige wieder zusammen,
+dafür ein Gateway einfügen (`bpmn add <datei> xor --flow <flow-id>`), sonst meldet `bpmn validate` eine Warnung. Immer `validate`
+und `render` ausführen und das Bild mitgeben.

@@ -8,6 +8,7 @@
 # Weitere Optionen: --kobench <ordner>   vorhandenes kobench-Repo nutzen (sonst wird der feste Stand geklont)
 #                   --praefix <ordner>   wohin `bpmn` installiert wird (Standard ~/.local)
 #                   --ohne-bpmn          bpmn nicht installieren (und keine Prozesse bauen)
+# Fehlt Node.js (24 oder neuer), wird es mit festgelegter Version in das Präfix installiert.
 # Das Ziel muss leer oder neu sein. Es wird nichts gepusht und nichts im Repo geändert.
 set -euo pipefail
 HIER="$(cd "$(dirname "$0")" && pwd)"
@@ -38,13 +39,19 @@ if [ -z "$KOBENCH" ]; then
 fi
 
 if [ "$BPMN" = 1 ]; then
+  echo "== Node.js prüfen"
+  if ! PATH="$PRAEFIX/bin:$PATH" command -v node >/dev/null || [ "$(PATH="$PRAEFIX/bin:$PATH" node -p 'process.versions.node.split(".")[0]')" -lt 24 ]; then
+    "$HIER/installieren-node.sh" "$PRAEFIX"
+  else
+    echo "Node.js $(PATH="$PRAEFIX/bin:$PATH" node -v) vorhanden."
+  fi
+  export PATH="$PRAEFIX/bin:$PATH"   # ab hier gilt das Präfix (node für bpmn, bpmn für die Prozesse)
   echo "== bpmn installieren"
   if PATH="$PRAEFIX/bin:$PATH" command -v bpmn >/dev/null && [ "$(PATH="$PRAEFIX/bin:$PATH" bpmn --version)" = "$(sed -n 's/^VERSION="\(.*\)"/\1/p' "$HIER/installieren-bpmn.sh")" ]; then
     echo "bpmn in der festen Version schon vorhanden."
   else
     "$HIER/installieren-bpmn.sh" "$PRAEFIX" | tail -1
   fi
-  export PATH="$PRAEFIX/bin:$PATH"
 fi
 
 echo "== Daten bauen"

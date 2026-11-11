@@ -5,7 +5,7 @@
 set -euo pipefail
 VERSION="0.10.0"
 PRAEFIX="${1:-$HOME/.local}"
-command -v node >/dev/null || { echo "Node.js fehlt (Version 24 oder neuer nötig)." >&2; exit 1; }
-[ "$(node -p 'process.versions.node.split(".")[0]')" -ge 24 ] || { echo "Node.js $(node -v) ist zu alt, nötig: 24 oder neuer." >&2; exit 1; }
+command -v node >/dev/null || { echo "Node.js fehlt (Version 24 oder neuer nötig). Siehe installieren-node.sh." >&2; exit 1; }
+[ "$(node -p 'process.versions.node.split(".")[0]')" -ge 24 ] || { echo "Node.js $(node -v) ist zu alt, nötig: 24 oder neuer. Siehe installieren-node.sh." >&2; exit 1; }
 npm install -g --prefix "$PRAEFIX" "@miragon/bpmn-cli@$VERSION"
 echo "Installiert: $("$PRAEFIX/bin/bpmn" --version). Pfad ergänzen: export PATH=\"$PRAEFIX/bin:\$PATH\""
