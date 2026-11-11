@@ -15,6 +15,9 @@ Skript im Repo; der Eintrag hält fest, was fehlt.
 | Open Terminal (nativ auf macOS) | nicht festgehalten | Mac als Umgebung für OpenWebUI, unter eigenem Benutzer | `uvx open-terminal run`, Hinweise in [erweiterter-stack-betrieb.md](erweiterter-stack-betrieb.md) §4 | Lücke: kein Startskript, keine feste Version im Repo |
 | uv | nicht festgehalten | Start von Open Terminal (`uvx`), Python-Umgebungen | Von Hand beim zweiten Benutzer | Lücke: kein Skript |
 | Homebrew im Home-Ordner | nicht festgehalten | Pakete ohne Administratorrechte | Beschrieben in [erweiterter-stack-betrieb.md](erweiterter-stack-betrieb.md) §5 | Lücke: kein Skript |
+| Codex CLI ([openai/codex](https://github.com/openai/codex), Apache-2.0) | 0.167.1 (fest) | Coding-Agent im Open-Terminal-Container, aufrufbar als `codex exec` | [`scripts/terminal-container-einrichten.sh`](../scripts/terminal-container-einrichten.sh) | Lücke: Skript vorhanden, Lauf auf frischem Container steht aus (Anmeldung per `codex login` bleibt Handarbeit) |
+| Colima-Autostart (LaunchAgent) | – | Colima nach hartem Absturz selbst starten | [`scripts/colima-autostart-einrichten.sh`](../scripts/colima-autostart-einrichten.sh) | Lücke: Skript vorhanden, auf frischem Mac nicht ausgeführt (ein Test mit nachgebauter Sperre am 11.11.2026 war erfolgreich, mit der Vorversion von Hand) |
+| Open Terminal als LaunchDaemon (macOS) | – | Open Terminal als Sandbox-Benutzer ohne Oberfläche, Start beim Booten | [`scripts/mac-open-terminal-installieren.sh`](../scripts/mac-open-terminal-installieren.sh) | Lücke: Skript vorhanden, in dieser parametrisierten Fassung nicht ausgeführt (Vorversion lief am 11.11.2026) |
 
 ## Eintragen
 
