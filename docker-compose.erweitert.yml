@@ -19,7 +19,7 @@ name: kobe-erweitert
 services:
   # --- Oberfläche -------------------------------------------------------------
   openwebui:
-    image: ghcr.io/open-webui/open-webui@sha256:8b432fe0a65b91116afc7961365c6cca5379cc923171386a96691f3471f3cae9
+    image: ghcr.io/open-webui/open-webui@sha256:46b59158e6558eeb980bc828e0f1b30238ad24d82ed84d5e5eda1dab2a082f14
     command: ["bash", "start.sh"]
     ports:
       - "127.0.0.1:3000:8080"
