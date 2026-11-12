@@ -68,3 +68,23 @@ Aus Tests sind Fragen an das öffentliche Open-WebUI-Repo entstanden. Vorher suc
 
 - Entscheidung, ob Open Terminal für mehrere Benutzer freigegeben wird und unter welchem Benutzerkonto.
 - Umgang mit der Sprache der Oberfläche: Bei einem unvollständigen Sprachpaket erscheinen Übersetzungsschlüssel statt Text. Abhilfe ist die Oberflächensprache Englisch, bis ein vollständiges Paket da ist.
+
+## 9. Workspace-Modell mit Codex-Agent und LLM-Wiki (geprüft 12.11.2026)
+
+Ein Workspace-Modell soll Aufgaben koordinieren; Dateiarbeit gehört dem Codex-Agenten. Ein System-Prompt allein schützt nicht vor direktem Werkzeugzugriff. In Open WebUI 0.13.3 wurden deshalb die Modellfähigkeiten `terminal` und `code_interpreter` abgeschaltet. Die Terminal-Verbindung bleibt als Laufzeitkontext erhalten, damit der delegierte Agent sie erben kann. Das Modell erhält nur `delegate_task` mit einer festen `meta.subagents.model_ids`-Liste. Direkte Terminal- und Code-Interpreter-Werkzeuge wurden über die Open-WebUI-Modell-API als deaktiviert verifiziert.
+
+Subagents sind global standardmäßig aus. Wenn sie für eine einzelne Workspace-Aufgabe eingeschaltet werden, bekommen andere Modelle sonst ebenfalls das Werkzeug `delegate_task`, solange kein Modellstandard dagegensteht. Dafür `models.default_metadata.builtinTools.subagents=false` setzen und nur dem ausdrücklich freigegebenen Workspace-Modell `subagents=true` sowie eine Agent-Allowlist geben. Hintergrund-Subagents bleiben aus. Geprüft wurden vier übrige Modelle mit deaktivierter Subagent-Funktion und keine weiteren freigeschalteten Workspace-Allowlisten.
+
+Das gebundene Open-WebUI-Skill fragt nach einem tatsächlich abgeschlossenen, wiederverwendbaren Ergebnis über `ask_user`, ob ein bereinigter Vorschlag für das gemeinsame Firmenwissen vorbereitet werden soll. Es darf nichts ohne Ja übernehmen. Auch nach Ja bleibt es bei einem Entwurf im privaten Wiki, solange ein freigegebenes gemeinsames Ziel nicht eingerichtet ist. Die Skill-Anbindung ist Textinstruktion, keine Zugriffssperre; die Modellrechte bilden die technische Grenze.
+
+### LLM-Wiki
+
+`scripts/llm-wiki-einrichten.sh <Compose-env-Datei>` richtet die Grundstruktur im persistenten Home-Volume des Terminal-Containers ein und erstellt den Dienst mit `/home/user/llm-wiki` als Arbeitsverzeichnis neu. Die Vorlage legt vorhandene Wiki-Dateien nicht erneut an und überschreibt sie nicht. Das Wiki folgt Karpathys Muster: unveränderte Rohquellen, verlinkte Wissenskonzepte, Agentenschema sowie Index und Änderungslog. Wissenskonzepte tragen OKF-Frontmatter. Der offizielle OKF-Validator meldete fünf Konzepte, null Fehler und null Warnungen. Der Terminal-Endpunkt `/files/cwd` meldete anschließend `/home/user/llm-wiki`.
+
+### Datenverantwortung bei Widersprüchen
+
+Ein synthetischer Test hat über den Open-WebUI-internen Notification-Dienst eine `system.announcement` gezielt an das Admin-Konto geschickt; der Eintrag war in dessen Inbox sichtbar. Das belegt gezielte Zustellung innerhalb der Instanz. Es gibt noch keinen vom Codex-Agenten aufrufbaren, eingeschränkten Versandweg und keine gepflegte Zuständigkeitskarte. Die Testbenachrichtigung war daher ein Durchstich des Inbox-Mechanismus, kein fertiger Agentenworkflow. Für den Produktivweg muss die zuständige Person je Wissensbereich festgelegt und ein eng begrenztes Werkzeug mit Autorisierung und Audit eingerichtet werden. Eine Rückfrage über `ask_user` erreicht dagegen nur die Person im gerade offenen Chat.
+
+### Sandbox-Grenze
+
+Der Codex-Agent startet in `/home/user/llm-wiki`. Ein direkter CLI-Lesetest erreichte dieses Verzeichnis, aber der Linux-Sandbox-Start scheiterte beim Erzeugen der Namespace- und Loopback-Umgebung (`bwrap`, Docker-Seccomp/AppArmor). Ein einmaliger Container-Test mit gelockertem Seccomp/AppArmor beseitigte den Fehler nicht; dort scheiterte die Netznamespace-Einrichtung. Diese Profile wurden nicht für den laufenden Dienst gelockert. Deshalb sind die Modellrechte fail-closed, aber ein echter Codex-Dateizugriff über Open WebUI ist noch nicht erfolgreich nachgewiesen. Nicht die Sandbox abschalten: Die konkrete Lösung muss die Docker-VM und die minimal benötigten Namespace-Rechte prüfen.
