@@ -12,7 +12,7 @@ compose=(docker compose --env-file "$1" -f docker-compose.erweitert.yml)
 set -eu
 umask 077
 root=/home/user/llm-wiki
-mkdir -p "$root/raw" "$root/wiki" "$root/references" "$root/proposals"
+mkdir -p "$root/raw" "$root/wiki" "$root/references" "$root/proposals" "$root/skills/openwebui-kommunikation"
 write_if_missing() {
   file=$1
   if [ -e "$file" ] || [ -L "$file" ]; then
@@ -74,6 +74,7 @@ Ein persistentes, agentengepflegtes Markdown-Wiki. Das Muster trennt unveränder
 - [Open Knowledge Format](references/open-knowledge-format.md)
 - [Rohquellen](raw/index.md)
 - [Vorschläge für gemeinsames Firmenwissen](proposals/index.md)
+- [Skill: Rückfrage per Direktnachricht in OpenWebUI](skills/openwebui-kommunikation/SKILL.md)
 
 Änderungshistorie: [log.md](log.md)
 EOF
@@ -84,6 +85,7 @@ write_if_missing "$root/log.md" <<'EOF'
 - **Creation**: Grundstruktur nach Karpathys LLM-Wiki-Muster angelegt: unveränderte Quellen, agentengepflegte Wiki-Konzepte, Schema, Index und Änderungslog.
 - **Creation**: OKF v0.1 als Frontmatter-Vertrag für alle Konzepte festgelegt.
 - **Creation**: Widerspruchsprüfung mit fachlicher Datenverantwortung und einwilligungsgebundene Vorschläge dokumentiert.
+- **Creation**: Skill `openwebui-kommunikation` (Rückfrage per Direktnachricht) unter `skills/` angelegt; für Codex über `~/.agents/skills` verlinkt. Datenverantwortungs-Ablauf verweist darauf.
 EOF
 
 write_if_missing "$root/raw/index.md" <<'EOF'
@@ -136,7 +138,7 @@ type: Playbook
 title: Fachliche Datenverantwortung bei Widersprüchen fragen
 description: Ein begrenzter Ablauf, um widersprüchliche Aussagen einer zuständigen Person zur Einordnung vorzulegen.
 tags: [datenverantwortung, widerspruch, menschliche-pruefung]
-timestamp: 2026-11-12T08:00:00+01:00
+timestamp: 2026-11-12T12:00:00+01:00
 ---
 
 # Wann anwenden
@@ -147,7 +149,7 @@ Wenn Codex in freigegebenen Quellen oder im Wiki zwei nicht vereinbare Aussagen 
 
 1. Den Themenbereich und beide Aussagen mit ihren Fundstellen benennen.
 2. Beleg, Schlussfolgerung und Unsicherheit trennen. Keine der Aussagen ohne Beleg als richtig markieren.
-3. Eine fachliche Datenverantwortung nur dann direkt fragen, wenn OpenWebUI dafür einen privaten, auf diese Person begrenzten Zielkanal bereitstellt. Namen nicht aus einer Vermutung ableiten.
+3. Eine fachliche Datenverantwortung direkt fragen, wenn ihre Zuständigkeit bestätigt ist: per Direktnachricht nach dem Skill [Rückfrage per Direktnachricht in OpenWebUI](/skills/openwebui-kommunikation/SKILL.md). Namen nicht aus einer Vermutung ableiten.
 4. Die Frage knapp formulieren: „Für [Bereich] stehen [Aussage A, Quelle] und [Aussage B, Quelle] im Konflikt. Welche gilt, sind beide kontextabhängig oder fehlt eine weitere Quelle?“
 5. Die Antwort als menschliche Einordnung mit Datum und Bereich dokumentieren; Quellenbelege daneben erhalten.
 6. Ohne bestätigte Zuständigkeit oder erreichbaren Privatkanal den Konflikt als offen markieren und im aktuellen Chat um Einordnung bitten.
@@ -220,6 +222,52 @@ write_if_missing "$root/proposals/index.md" <<'EOF'
 
 Hier liegen nur bereinigte Entwürfe nach ausdrücklicher Zustimmung. Dieses Verzeichnis wird nicht automatisch mit einem gemeinsamen Agenten synchronisiert.
 EOF
+
+write_if_missing "$root/skills/openwebui-kommunikation/SKILL.md" <<'EOF'
+---
+name: openwebui-kommunikation
+description: Als Firmenagent eine bestimmte Person in OpenWebUI per Direktnachricht fragen und ihre Antwort lesen. Nutzen, wenn nur diese Person etwas klären kann (Widerspruch zwischen Quellen, fachliche Freigabe, fehlende Angabe) und sie nicht im aktuellen Chat ist.
+type: Skill
+title: Rückfrage per Direktnachricht in OpenWebUI
+tags: [openwebui, rueckfrage, datenverantwortung, kommunikation]
+timestamp: 2026-11-12T12:00:00+01:00
+---
+
+# Rückfrage per Direktnachricht in OpenWebUI
+
+Der Firmenagent hat ein eigenes, normales OpenWebUI-Konto ohne Admin-Rechte. Mit `~/bin/rueckfrage` schreibt er einer Person eine Direktnachricht und erwähnt sie darin. Die Person sieht die Frage in ihrer Inbox, ein Klick öffnet die Unterhaltung, dort antwortet sie.
+
+## Wann nicht
+
+- Die Person sitzt im aktuellen Chat: dort fragen (`ask_user`), keine Direktnachricht.
+- Die Antwort steht in freigegebenen Quellen oder im Wiki: erst dort nachsehen.
+- Die Zuständigkeit ist unklar: keinen Empfänger raten. Den Punkt als offen markieren und im aktuellen Chat fragen, wer zuständig ist.
+- Keine Rundschreiben an viele Personen und keine Fragen aus Neugier. Die Personensuche zeigt Namen und E-Mail-Adressen aller Konten; sie dient nur dazu, eine bereits bekannte zuständige Person zu erreichen.
+
+## Ablauf
+
+1. Empfänger festlegen: nur aus einem Auftrag, einer bestätigten Zuständigkeit im Wiki oder der Antwort der Person im Chat. Die E-Mail-Adresse des OpenWebUI-Kontos verwenden.
+2. Frage so schreiben, dass sie ohne Vorwissen beantwortbar ist: Bereich, was vorliegt (mit Fundstellen), die konkrete Frage, mögliche Antworten. Keine Zugangsdaten, keine vertraulichen Inhalte, die die Person nicht ohnehin sehen darf.
+3. Senden: `rueckfrage <E-Mail> "<Frage>"`. Die Ausgabe nennt Kanal und Nachricht und den Befehl zum Lesen. Beides im Ergebnis oder im Wiki-Log festhalten, sonst ist die Antwort später nicht zuzuordnen.
+4. Antwort lesen: `rueckfrage antworten <Kanal> <Nachricht>`. Exit 0 = Antworten mit Zeit und Name, Exit 3 = noch keine Antwort. Eine neue Antwort wird nicht gemeldet; nicht in einer Schleife abfragen, sondern beim nächsten Arbeitsschritt oder auf Zuruf nachsehen.
+5. Antwort verwerten: als menschliche Einordnung mit Datum, Person und Bereich festhalten, die Quellenbelege daneben stehen lassen (siehe [Fachliche Datenverantwortung bei Widersprüchen fragen](/wiki/data-owner-pruefung.md)). Bleibt die Antwort aus, den Punkt als offen melden statt selbst zu entscheiden.
+
+## Ohne eigenes Terminal
+
+Ein Chatmodell ohne Terminalzugriff führt `rueckfrage` nicht selbst aus. Es übergibt die Aufgabe an den freigegebenen Terminal-Agenten, mit Empfänger, fertigem Fragetext und dem Hinweis, Kanal und Nachricht zurückzumelden.
+
+## Grenzen
+
+- Das Werkzeug schreibt nur Direktnachrichten des Firmenagenten. Andere Kanäle und fremde Unterhaltungen liest es nicht.
+- Die Zugangsdaten liegen in `~/.config/firmenagent/zugang`. Nie ausgeben, nie in Nachrichten, Wiki oder Vorschläge kopieren.
+
+# Citations
+
+- [Fachliche Datenverantwortung bei Widersprüchen fragen](/wiki/data-owner-pruefung.md)
+EOF
+
+mkdir -p "$HOME/.agents/skills"
+[ -e "$HOME/.agents/skills/openwebui-kommunikation" ] || ln -s "$root/skills/openwebui-kommunikation" "$HOME/.agents/skills/openwebui-kommunikation"
 
 chmod 700 "$root"
 printf 'wiki_ready=%s\n' "$root"
