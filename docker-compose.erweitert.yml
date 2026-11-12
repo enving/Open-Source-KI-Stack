@@ -82,8 +82,13 @@ services:
     working_dir: /home/user/llm-wiki
     environment:
       OPEN_TERMINAL_API_KEY: ${OPEN_TERMINAL_API_KEY:?OPEN_TERMINAL_API_KEY in .env setzen}
+    # Codex' Linux-Sandbox (bubblewrap) braucht Namensräume und Mounts: eigenes Seccomp-Profil (Docker-Standard plus
+    # diese Aufrufe, scripts/seccomp-open-terminal-erzeugen.sh) und AppArmor ohne docker-default, das Mounts verbietet.
+    # Auf Ubuntu-Hosts zusätzlich scripts/docker-host-userns-freigeben.sh. Siehe docs/erweiterter-stack-betrieb.md.
     security_opt:
       - no-new-privileges:true
+      - seccomp=./docker/seccomp-open-terminal.json
+      - apparmor=unconfined
     mem_limit: 2g
     pids_limit: 512
     volumes:
