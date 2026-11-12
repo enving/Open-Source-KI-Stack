@@ -79,6 +79,7 @@ services:
   open-terminal:
     image: ghcr.io/open-webui/open-terminal@sha256:1c5f9dbfb84fa4ad1c057f63b4bf78145ea08f0286005bfaeb9e01929f6d0da3
     command: ["run", "--host", "0.0.0.0", "--port", "8000"]
+    working_dir: /home/user/llm-wiki
     environment:
       OPEN_TERMINAL_API_KEY: ${OPEN_TERMINAL_API_KEY:?OPEN_TERMINAL_API_KEY in .env setzen}
     security_opt:
