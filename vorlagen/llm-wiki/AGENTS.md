@@ -16,7 +16,7 @@ Dieses Verzeichnis ist der Arbeitsbereich des Firmenagenten (Codex im Open-Termi
 - `wiki/<bereich>/`: Wissen, das dauerhaft gilt (Angebot, Abläufe, Stimme). Ein Ordner je Bereich aus `firma.md`.
 - `raw/`: Originalquellen, nur lesen. Neue Quellen nur nach Auftrag.
 - `references/`: Quellenbeschreibungen mit URL und Abrufdatum.
-- `steuerung/`: Systemanweisung mit Ampel, Landkarte der Datenorte.
+- `steuerung/`: Systemanweisung mit Ampel, Landkarte der Datenorte, KI-Inventar mit Rollenprüfung.
 - `skills/<name>/SKILL.md`: Anleitungen für wiederkehrende Aufgaben. `evals/<name>/`: Prüffälle dazu.
 - `proposals/`: Entwürfe, die noch kein Besitzer bestätigt hat.
 - `logbuch/JJJJ-MM.md`: ein Eintrag je erledigtem Skill-Lauf.
@@ -40,6 +40,7 @@ Kundendaten, Mailinhalte, laufende Vorgänge und Fristen einzelner Aufträge ble
 - Widerspricht etwas dem Wiki, nicht selbst auflösen, sondern dem Besitzer vorlegen (Skill `openwebui-kommunikation`).
 - Jede Änderung ist ein Vorschlag: auf einem Zweig `vorschlag/<datum>-<kurz>` arbeiten, committen, Diff zeigen. In `main` erst nach Ja des Besitzers. `log.md` ergänzen, `werkzeuge/wiki-index.sh` und `werkzeuge/wiki-pruefen.sh` laufen lassen.
 - Korrekturen von Menschen: Skill `lernschleife`.
+- Neuer Agent, neues Modell, neue Werkzeuge oder neuer Zweck: `steuerung/ki-inventar.md` prüfen und die Geschäftsführung fragen, bevor es eingesetzt wird.
 - Nach jedem erledigten Skill-Lauf eine Zeile in `logbuch/JJJJ-MM.md`: Datum, Skill, Auslöser, Ergebnis, offene Punkte. Ohne Kundendaten.
 
 ## Abschluss

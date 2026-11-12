@@ -126,3 +126,20 @@ Der Codex-Agent startet in `/home/user/llm-wiki`. Open WebUI startet ihn fest mi
 - **Composio (Admin-Test)**, API-Schlüssel im Header `x-consumer-api-key`, ohne Freigaben und damit nur für Admins. Sie wird nur angelegt, wenn `COMPOSIO_API_KEY` gesetzt ist. Alle Aufrufe darüber laufen unter dem Admin-Konto. Für Mitarbeitende ist sie deshalb ungeeignet.
 
 Geprüft: Über die Admin-Verbindung lieferte der MCP-Server zwölf Meta-Werkzeuge. Dazu gehören Suche, Verbindungsverwaltung, Ausführung und `COMPOSIO_REMOTE_BASH_TOOL`/`COMPOSIO_REMOTE_WORKBENCH`, die Code in Composios Umgebung ausführen. Diese Ausführung liegt außerhalb der Sandbox-Grenze aus Abschnitt 9 und muss bei der Rechtevergabe mitbedacht werden. Der OAuth-Client wurde beim Neustart ohne Fehler geladen. Die Anmeldung einer Person im Browser klappte. Open WebUI speicherte danach eine eigene Sitzung samt Refresh-Token für dieses Konto, und mit deren Token lieferte Composio dieselben zwölf Werkzeuge. Ein zweites Konto ohne eigene Anmeldung hat keine Sitzung und bekommt `Auth required`. Danach verband ein zweites Nutzerkonto (ohne Admin-Rechte) im Chat sein eigenes Composio-Konto. Beide Konten hatten nun je eine eigene Sitzung. Jedes legte über `GMAIL_CREATE_EMAIL_DRAFT` einen Entwurf in seinem eigenen Gmail an, und das zweite Konto sah in Composio nur seine eigene Gmail-Verbindung. Fehlt die Verbindung zu einer App, erzeugt `COMPOSIO_MANAGE_CONNECTIONS` im Chat einen zeitlich begrenzten Verbindungslink von Composio. Schaltet die Person das Werkzeug im Chat ab, fehlen die Composio-Werkzeuge sofort. Das Modell erklärte Nutzern ohne Admin-Rechte dennoch, sie sollten im Admin-Bereich nachsehen. Woher die Werkzeuge kommen, gehört deshalb in die Systemanweisung oder eine kurze Nutzerdoku. Offene Fragen zu Identität und Agentenkonto: Issue #27.
+
+## 11. Beitrag zu KI-Verordnung und ISO/IEC 42001 (Einordnung, keine Rechtsberatung)
+
+Der Stack nimmt einer Firma die Einordnung nicht ab. Er liefert Bausteine, mit denen sie zeigen kann, welche Maßnahmen für welche Aspekte getroffen sind. Herleitung der Rollen (eine Firma, die einen Agenten selbst zusammenstellt und unter eigenem Namen nutzt, ist in der Regel Anbieter und Betreiber) und die Vorlage für Rollenprüfungen stehen im öffentlichen Repo kobetriebssystem: `docs/architektur/anbieterrolle-und-pflichtenabdeckung-2026-11-09.md` und `ki-inventar/`. Hier steht nur, was der Stack dazu beiträgt.
+
+| Aspekt | Baustein im Stack | Stand 12.11.2026 |
+|---|---|---|
+| Inventar und Rollenprüfung je KI-System | `steuerung/ki-inventar.md` in der Wiki-Vorlage, vorbefüllt mit Workspace-Modell und Firmenagent | Vorlage; Einordnung trifft die Firma |
+| Rollen und Verantwortung (ISO 42001, Führung) | Besitzer je Bereich und Firmen-Admin in `firma.md`; später Gruppen aus Entra ID | Konten eingetragen, Entra ID nur Konzept |
+| Hinweis, dass man mit einer KI spricht (Art. 50 Abs. 1) | Firmenagent stellt sich in Direktnachrichten vor (Skill `onboarding`) | geprüft mit zwei Begrüßungen |
+| KI-Kompetenz (Art. 4) | Onboarding erklärt Nutzung, Ampel, Korrektur | Schulung je Rolle fehlt |
+| Klare Grenzen im Betrieb (ISO 42001, Betrieb) | ein Firmenagent; Werkzeuge mit Rechten der Person (Composio je Person); Ampel; Codex-Sandbox; Remote-Ausführung bei Composio gesperrt | geprüft, siehe Abschnitte 9 und 10 |
+| Nachvollziehbarkeit (ISO 42001, Bewertung) | Logbuch je Skill-Lauf, Wiki unter Git, Prüffälle mit Ergebnissen, OS-Check | Werkzeuge geprüft; OS-Check ohne Zeitplan |
+| Verbesserung mit Freigabe (ISO 42001, Verbesserung) | Lernschleife: Korrektur, Prüffall, Ja eines Menschen, Zweig statt direkter Änderung | Ablauf angelegt; Prüffälle bestehen noch nicht alle |
+| Protokoll von Modell- und Werkzeugaufrufen | Open-WebUI-Chats, Composio-Logs | nicht zentral ausgewertet; offen |
+
+Ein Firmenagent mit beliebig vielen Assistenzmodellen in Open WebUI, oder ganz ohne, bleibt dabei überschaubar: Jedes weitere Modell ist ein Eintrag im Inventar mit eigenen Rechten. Was eine Firma konkret beschließt, steht in ihrem Wiki.
