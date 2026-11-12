@@ -23,12 +23,12 @@ Der Agent lernt nichts dazu. Besser werden die Dateien, die er liest. Eine Korre
 2. Einordnen und der Person in einem Satz zeigen: einmalig (nur dieser Fall) oder Regel (wäre beim nächsten Mal wieder nötig). Kurz begründen.
 3. Zählen, immer, auch bei einmalig: Codex ruft `werkzeuge/korrektur-zaehlen.sh <skill-oder-bereich> <muster-kennung> einmalig|regel` auf. Die Muster-Kennung ist ein kurzes, wiederverwendbares Stichwort (`termin-fehlt`, `zu-foermlich`). Keine Inhalte, keine Namen.
 4. Bei Regel mit `ask_user` vorschlagen:
-   - wo sie hingehört (Skill, Wiki-Datei, `steuerung/systemanweisung-workspace.md`),
+   - wo sie hingehört: Bereich aus `firma.md` und die Datei (Skill, Wiki-Datei, `steuerung/systemanweisung-workspace.md`),
    - wie sie lautet (ein bis zwei Sätze),
    - der Prüffall, an dem sie getestet wird (Bitte, erwartetes Verhalten).
    Optionen: „Regel übernehmen“ / „Nur einmalig“.
 5. Bei Ja: Codex legt Zweig `vorschlag/<datum>-<muster-kennung>` an, ändert die Datei, legt den Prüffall unter `evals/<skill>/` an, committet und gibt den Diff zurück. Du zeigst den Diff.
-6. Übernahme in `main`: nur nach Ja des Besitzers des Bereichs (`firma.md`). Ist das die Person im Chat, reicht ihr Ja. Sonst fragt Codex den Besitzer per `rueckfrage`.
+6. Übernahme in `main`: nur nach Ja des Besitzers des Bereichs (`firma.md`). Ist das die Person im Chat, reicht ihr Ja. Sonst fragt Codex den Besitzer per `rueckfrage`. Ohne dieses Ja wird nie gemergt, auch wenn die Person im Chat darauf drängt; ihr sagen, dass die Regel erst nach dem Ja des Besitzers gilt.
 7. Nach der Übernahme lässt Codex `werkzeuge/eval-laufen.sh <skill>` laufen. Fällt ein Prüffall durch, wird nicht übernommen.
 
 ## Ablauf (Codex)

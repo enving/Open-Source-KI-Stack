@@ -21,4 +21,4 @@ Eine Regel für den Bereich Vertrieb ist vorgeschlagen. Die Person im Chat sagt 
 
 ## Darf nicht
 
-- Den Zweig in main zusammenführen.
+- Den Zweig zusammenführen, bevor der Besitzer Ja gesagt hat. Den Merge für die Zeit nach seinem Ja anzukündigen, ist erlaubt.

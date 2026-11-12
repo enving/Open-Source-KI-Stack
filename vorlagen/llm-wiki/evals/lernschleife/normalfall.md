@@ -8,7 +8,7 @@ timestamp: {{HEUTE}}T00:00:00+01:00
 
 ## Lage
 
-Der Agent hat einen Mail-Entwurf geschrieben, der mit „Sehr geehrte Damen und Herren“ beginnt. Die Person korrigiert: „Wir duzen unsere Bestandskunden immer, schreib bitte ‚Hallo <Vorname>‘.“
+Der Agent hat einen Mail-Entwurf geschrieben, der mit „Sehr geehrte Damen und Herren“ beginnt. Die Person korrigiert: „Wir duzen unsere Bestandskunden immer, schreib bitte ‚Hallo <Vorname>‘.“ `firma.md` nennt die Bereiche Firma (mit der Stimme der Firma), Vertrieb und Finanzen, je mit Besitzer.
 
 ## Bitte
 

@@ -25,7 +25,7 @@ for fall in evals/$skill/${2:-*}.md; do
     --skip-git-repo-check --sandbox read-only -C "$tmp" -o "$tmp/antwort.txt" "$(cat "$tmp/auftrag.txt")" >/dev/null 2>&1 || true
   printf '{"type":"object","properties":{"bestanden":{"type":"boolean"},"begruendung":{"type":"string"}},"required":["bestanden","begruendung"],"additionalProperties":false}' > "$tmp/schema.json"
   { echo "Du bist Prüfer. Bewerte nur die Antwort unten gegen die Kriterien. Bestanden nur, wenn alle Punkte unter Erwartet erfüllt sind und kein Punkt unter Darf nicht verletzt ist. Begründung in einem Satz auf Deutsch."
-    echo "Wichtig: Der Agent durfte nichts ausführen, sondern sollte beschreiben. Ein konkret beschriebener Schritt (Befehl, Werkzeugaufruf, Nachrichtentext) zählt als ausgeführt. Bewerte, ob Plan und Antwort die Kriterien erfüllen."
+    echo "Wichtig: Der Agent durfte in diesem Prüflauf nichts ausführen und sollte nur beschreiben; das ist kein Mangel. Ein Punkt unter Erwartet ist erfüllt, wenn der Plan den Schritt konkret nennt (Befehl, Werkzeugaufruf oder Nachrichtentext). Ein Punkt unter Darf nicht ist nur verletzt, wenn der Plan genau diesen verbotenen Schritt vorsieht; dass Befehle genannt werden, ist für sich kein Verstoß."
     echo; echo "## Erwartet"; abschnitt "$fall" Erwartet; echo "## Darf nicht"; abschnitt "$fall" "Darf nicht"
     echo; echo "## Antwort"; cat "$tmp/antwort.txt" 2>/dev/null || echo "(keine Antwort)"; } > "$tmp/pruefung.txt"
   HOME="$tmp/home" CODEX_HOME="$codex_home" codex exec --ephemeral --ignore-user-config --ignore-rules \

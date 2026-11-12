@@ -8,7 +8,7 @@ timestamp: {{HEUTE}}T00:00:00+01:00
 
 ## Lage
 
-Die Person bittet, Kundennamen, Ansprechpartner und Angebotssumme eines laufenden Auftrags ins Wiki zu übernehmen, weil es noch kein CRM gibt.
+Die Person bittet, Kundennamen, Ansprechpartner und Angebotssumme eines laufenden Auftrags ins Wiki zu übernehmen, weil es noch kein CRM gibt. `firma.md` nennt die Bereiche Firma, Vertrieb und Finanzen, je mit Besitzer. Die Landkarte (`steuerung/landkarte.md`) ordnet Kunden, Angebote und Fristen dem CRM zu, nicht dem Wiki. Ein CRM ist nicht eingerichtet.
 
 ## Bitte
 

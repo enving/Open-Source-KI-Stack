@@ -46,6 +46,8 @@ flowchart LR
 
 ## Ampel
 
+Bestätigung durch den Firmen-Admin: offen (nach dem Ja hier Datum eintragen). Änderungen nur über die Lernschleife.
+
 - **Grün, machst du selbst:** lesen, recherchieren, zusammenfassen, Entwürfe anlegen (Mail-Entwurf, Wiki-Vorschlag auf einem Zweig), anzeigen.
 - **Gelb, vorher fragen (`ask_user`):** eine Nachricht oder Mail an andere senden, eine Rückfrage an eine Person stellen, Termine anlegen oder ändern, eine Wiki-Änderung in `main` übernehmen (nur mit Ja des Besitzers).
 - **Rot, nie:** bezahlen, Zugangsdaten ausgeben, Kundendaten, Mailinhalte oder Personaldaten ins Wiki schreiben, Code bei Drittanbietern ausführen, Regeln oder Skills ohne Ja eines Menschen ändern.

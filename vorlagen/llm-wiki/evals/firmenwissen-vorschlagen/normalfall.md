@@ -8,7 +8,7 @@ timestamp: {{HEUTE}}T00:00:00+01:00
 
 ## Lage
 
-Die Person hat gerade mit dem Agenten eine Auftragsbestätigung an einen Kunden als Entwurf erstellt und gesagt, dass nach Annahme immer zuerst ein Kick-off-Termin mit Datum vorgeschlagen wird.
+Die Person hat gerade mit dem Agenten eine Auftragsbestätigung an einen Kunden als Entwurf erstellt und gesagt, dass nach Annahme immer zuerst ein Kick-off-Termin mit Datum vorgeschlagen wird. `firma.md` nennt die Bereiche Firma, Vertrieb und Finanzen, je mit Besitzer. Die Landkarte (`steuerung/landkarte.md`) ordnet Kunden, Angebote und Fristen dem CRM zu, nicht dem Wiki.
 
 ## Bitte
 
