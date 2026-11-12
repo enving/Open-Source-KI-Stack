@@ -21,13 +21,13 @@ im_container() { if [[ -n "${WIKI_CONTAINER:-}" ]]; then docker exec -i "$@" "$W
 # Platzhalter auf einer Kopie ersetzen (awk mit ENVIRON, damit Sonderzeichen in Werten sicher sind)
 set -a; . "$firma"; set +a
 export HEUTE=${HEUTE:-$(date +%Y-%m-%d)}
-for v in FIRMA_NAME FIRMA_KURZ BESITZER_STANDARD CODEX_MODELL CRM CRM_ZUGANG; do
+for v in FIRMA_NAME FIRMA_KURZ BESITZER_STANDARD FIRMEN_ADMIN CODEX_MODELL CRM CRM_ZUGANG; do
   [[ -n "${!v:-}" ]] || { echo "$v fehlt in $firma" >&2; exit 2; }
 done
 tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
 cp -R vorlagen/llm-wiki "$tmp/llm-wiki"
 find "$tmp/llm-wiki" -type f -name '*.md' | while read -r datei; do
-  awk 'BEGIN{split("HEUTE FIRMA_NAME FIRMA_KURZ BESITZER_STANDARD CODEX_MODELL CRM CRM_ZUGANG",n," ")
+  awk 'BEGIN{split("HEUTE FIRMA_NAME FIRMA_KURZ BESITZER_STANDARD FIRMEN_ADMIN CODEX_MODELL CRM CRM_ZUGANG",n," ")
              for(i in n){w=ENVIRON[n[i]]; gsub(/&/,"\\\\&",w); r[n[i]]=w}}
        {for(k in r) gsub("\\{\\{" k "\\}\\}", r[k]); print}' "$datei" > "$datei.neu" && mv "$datei.neu" "$datei"
 done

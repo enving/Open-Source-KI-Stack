@@ -17,6 +17,7 @@ Laufende Daten bleiben in den Werkzeugen; der Agent liest sie dort mit den Recht
 | Kalender | Kalender der Person | Composio, sobald verbunden | Termine anlegen nur nach Frage |
 | Chats, Kanäle, Direktnachrichten | Open WebUI | Chat der Person; Firmenagent nur eigene Direktnachrichten | Keine fremden Chats lesen |
 | Rückfragen an Personen | Open WebUI Inbox | `rueckfrage` als Konto Firmenagent | Nur an zuständige Personen |
+| Administratives: Installationen, Rechte, Konten | Firmen-Admin laut `firma.md` | `rueckfrage` als Konto Firmenagent | Agent installiert und vergibt nichts selbst |
 | Wissen, Skills, Regeln | LLM-Wiki im Terminal-Container (Git) | Codex | Änderungen nur als Zweig mit Ja |
 | Kunden, Angebote, Fristen von Aufträgen | {{CRM}} | {{CRM_ZUGANG}} | Nicht ins Wiki |
 

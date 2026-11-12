@@ -27,8 +27,9 @@ Neue Bereiche: Zeile ergänzen, Ordner anlegen, `werkzeuge/wiki-index.sh` laufen
 
 ## Personen
 
-Wer welche Rolle hat. Rollen statt Privatangaben; die E-Mail ist das Open-WebUI-Konto.
+Wer welche Rolle hat. Rollen statt Privatangaben; die E-Mail ist das Open-WebUI-Konto. Bei Anmeldung über Microsoft Entra ID tritt an die Stelle der E-Mail später eine Gruppe (`gruppe:<Name>`), die Entra ID zuweist; siehe Betriebsdoku des Stacks. Administratives (Installationen, Rechte, neue Konten) meldet der Agent per `rueckfrage` an den Firmen-Admin.
 
 | Rolle | Konto |
 |---|---|
 | Geschäftsführung, OS-Betreuung | {{BESITZER_STANDARD}} |
+| Firmen-Admin (Installationen, Rechte, Konten) | {{FIRMEN_ADMIN}} |
