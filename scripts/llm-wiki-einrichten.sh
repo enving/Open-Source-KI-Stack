@@ -12,7 +12,7 @@ compose=(docker compose --env-file "$1" -f docker-compose.erweitert.yml)
 set -eu
 umask 077
 root=/home/user/llm-wiki
-mkdir -p "$root/raw" "$root/wiki" "$root/references" "$root/proposals" "$root/skills/openwebui-kommunikation"
+mkdir -p "$root/raw" "$root/wiki" "$root/references" "$root/proposals" "$root/skills/openwebui-kommunikation" "$root/skills/firmenwissen-vorschlagen" "$root/steuerung"
 write_if_missing() {
   file=$1
   if [ -e "$file" ] || [ -L "$file" ]; then
@@ -75,6 +75,8 @@ Ein persistentes, agentengepflegtes Markdown-Wiki. Das Muster trennt unveränder
 - [Rohquellen](raw/index.md)
 - [Vorschläge für gemeinsames Firmenwissen](proposals/index.md)
 - [Skill: Rückfrage per Direktnachricht in OpenWebUI](skills/openwebui-kommunikation/SKILL.md)
+- [Skill: Firmenwissen nach erledigter Aufgabe vorschlagen](skills/firmenwissen-vorschlagen/SKILL.md)
+- [Systemanweisung des Workspace-Modells](steuerung/systemanweisung-workspace.md)
 
 Änderungshistorie: [log.md](log.md)
 EOF
@@ -86,6 +88,7 @@ write_if_missing "$root/log.md" <<'EOF'
 - **Creation**: OKF v0.1 als Frontmatter-Vertrag für alle Konzepte festgelegt.
 - **Creation**: Widerspruchsprüfung mit fachlicher Datenverantwortung und einwilligungsgebundene Vorschläge dokumentiert.
 - **Creation**: Skill `openwebui-kommunikation` (Rückfrage per Direktnachricht) unter `skills/` angelegt; für Codex über `~/.agents/skills` verlinkt. Datenverantwortungs-Ablauf verweist darauf.
+- **Creation**: Systemanweisung des Workspace-Modells (mit Systemdiagramm) unter `steuerung/` und Skill `firmenwissen-vorschlagen` angelegt; beide werden per Skript nach Open WebUI übertragen.
 EOF
 
 write_if_missing "$root/raw/index.md" <<'EOF'
@@ -266,8 +269,98 @@ Ein Chatmodell ohne Terminalzugriff führt `rueckfrage` nicht selbst aus. Es üb
 - [Fachliche Datenverantwortung bei Widersprüchen fragen](/wiki/data-owner-pruefung.md)
 EOF
 
+write_if_missing "$root/steuerung/systemanweisung-workspace.md" <<'EOF'
+---
+type: SystemPrompt
+title: Systemanweisung des Workspace-Modells in Open WebUI
+description: Rolle, Systemaufbau als Diagramm und Arbeitsregeln für das koordinierende Chatmodell. Wird per Skript in das Modell übertragen.
+tags: [steuerung, openwebui, systemanweisung]
+timestamp: 2026-11-12T12:30:00+01:00
+---
+
+Du bist das Workspace-Modell in Open WebUI: die Oberfläche, mit der Menschen arbeiten. Du sprichst mit der Person, zeigst Ergebnisse an und koordinierst. Dateien und Befehle erledigt der Codex-Agent; er kann im Chat nichts anzeigen. Anzeigen ist deine Aufgabe.
+
+## So hängt das System zusammen
+
+```mermaid
+flowchart LR
+  P[Person im Browser] <--> W[Du: Workspace-Modell]
+  W -- "ask_user" --> P
+  W -- "delegate_task mit model_id" --> C[Codex-Agent im Terminal-Container]
+  C -- Text-Ergebnis --> W
+  C --> WK[(LLM-Wiki: raw, wiki, proposals, skills)]
+  C -- "rueckfrage" --> FA[Konto Firmenagent]
+  FA -- "Direktnachricht + Inbox" --> D[Zuständige Person]
+  W -- "Werkzeuge mit Konto der Person" --> CO[Composio]
+  CO --> T[Gmail, Kalender, weitere Apps]
+```
+
+## Delegieren
+
+- Datei- und Befehlsarbeit gibst du mit `delegate_task` ab, immer mit `model_id: agent:open-terminal:codex:gpt-6-luna`. Ohne `model_id` startet Open WebUI dich selbst noch einmal, nicht Codex. Das ist verboten.
+- Gib Ziel, Kontext, Erfolgskriterien und Dateipfade mit. Verlange, dass Codex Inhalte, die die Person sehen soll, vollständig als Text zurückgibt.
+- Erhältst du selbst einen Auftrag per `delegate_task`, bist du nicht Codex. Führe keine Dateiaufgaben aus, weiche nicht auf andere Werkzeuge aus, sondern melde die Blockade.
+- Ist Codex nicht erreichbar oder scheitert er, sag das so. Erfinde kein Ergebnis.
+
+## Anzeigen
+
+- Was Codex zurückgibt, zeigst du im Chat: als Markdown, Tabelle, Codeblock oder Mermaid-Diagramm. Abläufe und Zusammenhänge zeigst du gern als Mermaid.
+- `display_file` funktioniert nur für hochgeladene Dateien mit `file_id`, nicht für Pfade im Terminal-Container. Erfinde keine Datei-URLs.
+- Nenne bei Dateien den tatsächlichen Pfad, den Codex gemeldet hat.
+
+## Werkzeuge der Person (Composio)
+
+- Mail, Kalender und weitere Apps laufen über Composio mit dem eigenen Konto der Person, das sie im Chat unter Werkzeuge verbunden hat. Du siehst nur deren Verbindungen.
+- Eingerichtet hat die Werkzeuge der Admin dieser Instanz. Personen ohne Admin-Rechte sehen diese Einstellungen nicht; schick sie nicht ins Admin-Panel. Fehlt eine App-Verbindung, erzeugt Composio im Chat einen Verbindungslink.
+- Nachrichten an andere sendest du nur auf ausdrücklichen Auftrag; sonst legst du einen Entwurf an.
+
+## Ehrlich bleiben
+
+- Sag, welches Werkzeug was getan hat. Behaupte nichts, was nicht geschehen ist, auch nicht, du hättest etwas eingerichtet.
+- Findest du nichts, sag das und markiere die Lücke als offen.
+
+## Skills
+
+- Nach einer erledigten Aufgabe: Skill `firmenwissen-vorschlagen`.
+- Muss eine andere Person etwas klären: Skill `openwebui-kommunikation`, ausgeführt durch Codex.
+
+Antworte auf Deutsch und knapp.
+EOF
+
+write_if_missing "$root/skills/firmenwissen-vorschlagen/SKILL.md" <<'EOF'
+---
+name: firmenwissen-vorschlagen
+description: Nach einer erledigten Aufgabe vorschlagen, was davon ins gemeinsame Firmenwissen soll, und erst nach Zustimmung einen bereinigten Entwurf anlegen lassen. Anwenden im koordinierenden Workspace-Modell, nicht in einem Teilauftrag.
+type: Skill
+title: Firmenwissen nach erledigter Aufgabe vorschlagen
+tags: [wissenspflege, lernschleife, zustimmung]
+timestamp: 2026-11-12T12:30:00+01:00
+---
+
+# Firmenwissen nach erledigter Aufgabe vorschlagen
+
+Gilt für das koordinierende Workspace-Modell, nicht für einen Subagenten mit Teilauftrag.
+
+## Wann
+
+Nach jeder tatsächlich erledigten Aufgabe, deren Ergebnis geprüft ist. Derzeit gilt: lieber mehr vorschlagen als zu wenig. Auch ein kleiner Ablaufschritt, eine Vorlage, ein Begriff oder eine Korrektur der Person ist ein Vorschlag wert. Nicht nach Zwischenantworten oder Rückfragen.
+
+## Ablauf
+
+1. Den Baustein in 1–3 Sätzen zeigen und sagen, wem er künftig nützt. Hat die Person ein Ergebnis korrigiert, die Korrektur als möglichen Baustein nennen und einordnen: einmalig oder Regel für das nächste Mal.
+2. Mit `ask_user` fragen: „Vorschlag anlegen“ / „Nicht übernehmen“. Das Ja gilt nur für diesen Baustein.
+3. Bei Nein nichts schreiben und das bestätigen.
+4. Bei Ja den Entwurf von Codex unter `proposals/` im LLM-Wiki anlegen lassen (`delegate_task` mit `model_id`). Inhalt: Baustein, Quelle mit Datum („Chat mit <Rolle>, TT.MM.JJJJ“), Einordnung einmalig/Regel, offene Punkte.
+5. Bereinigen: Kundennamen, Kontaktdaten, Mailinhalte, Zugangsdaten und lokale Pfade gehören nicht in den Entwurf. Rollen statt Namen.
+6. Den Entwurf im Chat zeigen und deutlich sagen, dass er noch nicht im gemeinsamen Firmenwissen ist. Übernommen wird erst nach Prüfung durch den Besitzer des Bereichs.
+7. Kann Codex den Entwurf nicht anlegen, den bereinigten Text im Chat zeigen und die Blockade nennen. Nicht über andere Werkzeuge ausweichen.
+EOF
+
 mkdir -p "$HOME/.agents/skills"
-[ -e "$HOME/.agents/skills/openwebui-kommunikation" ] || ln -s "$root/skills/openwebui-kommunikation" "$HOME/.agents/skills/openwebui-kommunikation"
+for skill in "$root"/skills/*/; do
+  skill=$(basename "$skill")
+  [ -e "$HOME/.agents/skills/$skill" ] || ln -s "$root/skills/$skill" "$HOME/.agents/skills/$skill"
+done
 
 chmod 700 "$root"
 printf 'wiki_ready=%s\n' "$root"

@@ -20,6 +20,11 @@ ADMIN_ID = 'composio-admin'
 # Ohne 'openid': Composio gibt als Issuer connect.composio.dev an, signiert ID-Tokens aber als
 # login.composio.dev. Mit 'openid' scheitert der Rückruf an 'invalid_claim: iss' (geprüft 12.11.2026).
 SCOPE = 'offline_access'
+# Werkzeuge, die Code in Composios Cloud ausführen oder dort Skills ablegen. Sie liegen außerhalb der Sandbox
+# und der Wiki-Quelle und sind deshalb gesperrt (OpenWebUI-Filter: '!' sperrt, Vergleich per Namensende).
+# Anlass 12.11.2026: Ein Modell delegierte an sich selbst und schrieb per Remote-Bash in Composios Umgebung.
+GESPERRT = ['COMPOSIO_REMOTE_BASH_TOOL', 'COMPOSIO_REMOTE_WORKBENCH', 'COMPOSIO_MANAGE_SKILL', 'COMPOSIO_SEARCH_SKILLS',
+            'COMPOSIO_USE_SKILL']
 
 
 class _Anfrage:
@@ -38,7 +43,8 @@ def _verbindung(server_id, name, auth_type, beschreibung, headers=None, grants=N
         'forward_cookies': False,
         'headers': headers,
         'key': '',
-        'config': {'enable': True, 'access_grants': grants or []},
+        'config': {'enable': True, 'access_grants': grants or [],
+                   'function_name_filter_list': ','.join('!' + n for n in GESPERRT)},
         'info': {'id': server_id, 'name': name, 'description': beschreibung, **(info_extra or {})},
     }
 
