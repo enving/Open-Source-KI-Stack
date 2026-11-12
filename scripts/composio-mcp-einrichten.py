@@ -8,11 +8,18 @@ import os
 import sys
 
 from open_webui.models.config import Config
-from open_webui.utils.oauth import encrypt_data, get_oauth_client_info_with_dynamic_client_registration
+from open_webui.utils.oauth import (
+    decrypt_data,
+    encrypt_data,
+    get_oauth_client_info_with_dynamic_client_registration,
+)
 
 MCP_URL = 'https://connect.composio.dev/mcp'
 OAUTH_ID = 'composio'
 ADMIN_ID = 'composio-admin'
+# Ohne 'openid': Composio gibt als Issuer connect.composio.dev an, signiert ID-Tokens aber als
+# login.composio.dev. Mit 'openid' scheitert der Rückruf an 'invalid_claim: iss' (geprüft 12.11.2026).
+SCOPE = 'offline_access'
 
 
 class _Anfrage:
@@ -45,11 +52,11 @@ async def main():
     andere = [c for c in bestehend if (c.get('info') or {}).get('id') not in (OAUTH_ID, ADMIN_ID)]
 
     client_info = ((alt.get(OAUTH_ID) or {}).get('info') or {}).get('oauth_client_info')
-    if client_info:
+    if client_info and (decrypt_data(client_info) or {}).get('scope') == SCOPE:
         print('composio: vorhandene OAuth-Registrierung wird weiterverwendet')
     else:
         registriert = await get_oauth_client_info_with_dynamic_client_registration(
-            _Anfrage(oeffentliche_url), f'mcp:{OAUTH_ID}', MCP_URL
+            _Anfrage(oeffentliche_url), f'mcp:{OAUTH_ID}', MCP_URL, oauth_scope=SCOPE
         )
         client_info = encrypt_data(registriert.model_dump(mode='json'))
         print(f'composio: OAuth-Client registriert, Rückruf {oeffentliche_url}/oauth/clients/mcp:{OAUTH_ID}/callback')
